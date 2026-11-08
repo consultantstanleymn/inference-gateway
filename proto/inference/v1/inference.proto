@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package inference.v1;
+
+option go_package = "github.com/consultantstanleymn/inference-gateway/gen/inferencev1;inferencev1";
+
+// Gateway classifies a customer support message into one of 77 banking intents.
+service Gateway {
+  rpc Classify(ClassifyRequest) returns (ClassifyResponse);
+}
+
+message ClassifyRequest {
+  string text = 1;
+}
+
+message Score {
+  string intent = 1;
+  float probability = 2;
+}
+
+message ClassifyResponse {
+  string intent = 1;
+  float probability = 2;
+  string model_version = 3;
+  // The three most likely intents, best first.
+  repeated Score top = 4;
+}
