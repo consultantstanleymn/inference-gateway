@@ -1,0 +1,61 @@
+# OpenTelemetry Collector that writes every span to a file. A busybox sidecar prints the file
+# so the e2e script can read it with `kubectl logs`.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: otel-collector
+data:
+  config.yaml: |
+    receivers:
+      otlp:
+        protocols:
+          grpc:
+            endpoint: 0.0.0.0:4317
+    exporters:
+      file:
+        path: /data/traces.json
+    service:
+      pipelines:
+        traces:
+          receivers: [otlp]
+          exporters: [file]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: otel-collector
+spec:
+  replicas: 1
+  selector:
+    matchLabels: {app: otel-collector}
+  template:
+    metadata:
+      labels: {app: otel-collector}
+    spec:
+      volumes:
+        - name: data
+          emptyDir: {}
+        - name: config
+          configMap: {name: otel-collector}
+      containers:
+        - name: collector
+          image: docker.io/otel/opentelemetry-collector-contrib:0.120.0
+          args: ["--config=/etc/otel/config.yaml"]
+          ports: [{containerPort: 4317}]
+          volumeMounts:
+            - {name: data, mountPath: /data}
+            - {name: config, mountPath: /etc/otel}
+        - name: tail
+          image: docker.io/library/busybox:1.37
+          command: ["sh", "-c", "touch /data/traces.json; tail -F /data/traces.json"]
+          volumeMounts:
+            - {name: data, mountPath: /data}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: otel-collector
+spec:
+  selector: {app: otel-collector}
+  ports:
+    - {name: otlp-grpc, port: 4317, targetPort: 4317}

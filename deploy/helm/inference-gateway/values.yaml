@@ -1,0 +1,44 @@
+image:
+  repository: inference-gateway
+  tag: dev
+  pullPolicy: IfNotPresent
+
+# Which baked-in model the pods load. Change it and the pods roll.
+model:
+  version: v1
+
+replicaCount: 2
+
+gateway:
+  maxBatch: 16
+  maxWait: 5ms
+  queueSize: 256
+  requestTimeout: 2s
+  shutdownDelay: 5s
+  warmupHold: 0s
+
+resources:
+  requests:
+    cpu: 250m
+    memory: 256Mi
+  limits:
+    cpu: "1"
+    memory: 512Mi
+
+hpa:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 4
+  targetCPUUtilizationPercentage: 50
+
+pdb:
+  enabled: true
+  minAvailable: 1
+
+# Set an OTLP endpoint (for example an OpenTelemetry Collector) to export traces.
+otel:
+  endpoint: ""
+
+service:
+  httpPort: 8080
+  grpcPort: 9090

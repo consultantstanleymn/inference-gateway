@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "ig.name" . }}
+  labels: {{- include "ig.labels" . | nindent 4 }}
+data:
+  GATEWAY_MODEL_DIR: /models/{{ .Values.model.version }}
+  GATEWAY_HTTP_ADDR: ":{{ .Values.service.httpPort }}"
+  GATEWAY_GRPC_ADDR: ":{{ .Values.service.grpcPort }}"
+  GATEWAY_MAX_BATCH: {{ .Values.gateway.maxBatch | quote }}
+  GATEWAY_MAX_WAIT: {{ .Values.gateway.maxWait | quote }}
+  GATEWAY_QUEUE_SIZE: {{ .Values.gateway.queueSize | quote }}
+  GATEWAY_REQUEST_TIMEOUT: {{ .Values.gateway.requestTimeout | quote }}
+  GATEWAY_SHUTDOWN_DELAY: {{ .Values.gateway.shutdownDelay | quote }}
+  GATEWAY_WARMUP_HOLD: {{ .Values.gateway.warmupHold | quote }}
+  {{- if .Values.otel.endpoint }}
+  OTEL_EXPORTER_OTLP_ENDPOINT: {{ .Values.otel.endpoint | quote }}
+  OTEL_EXPORTER_OTLP_INSECURE: "true"
+  {{- end }}

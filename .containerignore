@@ -1,0 +1,9 @@
+.venv
+.git
+bin
+data
+train
+models/*/model.pt
+models/*/model.fp32.onnx
+docs
+third_party
