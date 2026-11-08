@@ -128,10 +128,18 @@ func TestOverloadReturns429AndResourceExhausted(t *testing.T) {
 
 func TestReadyz(t *testing.T) {
 	g := start(t, &slowRunner{}, batcher.Config{MaxBatch: 1, MaxWait: time.Millisecond, QueueSize: 1})
+	resp, _ := post(g.httpBase, `{"text":"hello"}`)
+	if resp.Close {
+		t.Fatal("a ready server must keep connections alive")
+	}
+	_ = resp.Body.Close()
 	g.srv.SetReady(false)
-	resp, _ := http.Get(g.httpBase + "/readyz")
+	resp, _ = http.Get(g.httpBase + "/readyz")
 	if resp.StatusCode != 503 {
 		t.Fatalf("not ready should be 503, got %d", resp.StatusCode)
+	}
+	if !resp.Close {
+		t.Fatal("a draining server must ask clients to close the connection")
 	}
 	_ = resp.Body.Close()
 	resp, _ = http.Get(g.httpBase + "/healthz")

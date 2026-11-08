@@ -1,0 +1,4 @@
+date: 2026-11-07T22:25:30-05:00
+model name	: Intel(R) Core(TM) i7-4770HQ CPU @ 2.20GHz
+threads: 8
+load before: 0.99 1.02 1.57

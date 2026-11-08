@@ -1,0 +1,8 @@
+{"max_batch":1,"transport":"grpc","summary":{"rate_target":100,"requests":2001,"throughput_rps":100,"checks_rate":1,"dropped_iterations":0,"avg_ms":0.69,"p50_ms":0.69,"p95_ms":0.81,"p99_ms":1.19,"max_ms":4.37}}
+{"max_batch":1,"transport":"grpc","summary":{"rate_target":200,"requests":4001,"throughput_rps":200,"checks_rate":1,"dropped_iterations":0,"avg_ms":0.6,"p50_ms":0.58,"p95_ms":0.76,"p99_ms":0.98,"max_ms":2.97}}
+{"max_batch":1,"transport":"grpc","summary":{"rate_target":400,"requests":8000,"throughput_rps":400,"checks_rate":1,"dropped_iterations":0,"avg_ms":0.47,"p50_ms":0.45,"p95_ms":0.59,"p99_ms":0.87,"max_ms":3.48}}
+{"max_batch":1,"transport":"grpc","summary":{"rate_target":800,"requests":16000,"throughput_rps":799.9,"checks_rate":1,"dropped_iterations":0,"avg_ms":0.46,"p50_ms":0.42,"p95_ms":0.56,"p99_ms":0.97,"max_ms":26.73}}
+{"max_batch":16,"transport":"grpc","summary":{"rate_target":100,"requests":2000,"throughput_rps":100,"checks_rate":1,"dropped_iterations":0,"avg_ms":6.01,"p50_ms":6.03,"p95_ms":6.21,"p99_ms":6.36,"max_ms":8.19}}
+{"max_batch":16,"transport":"grpc","summary":{"rate_target":200,"requests":4001,"throughput_rps":200,"checks_rate":1,"dropped_iterations":0,"avg_ms":4.38,"p50_ms":5.88,"p95_ms":6.67,"p99_ms":6.79,"max_ms":12.46}}
+{"max_batch":16,"transport":"grpc","summary":{"rate_target":400,"requests":8001,"throughput_rps":399.9,"checks_rate":1,"dropped_iterations":0,"avg_ms":3.88,"p50_ms":4.07,"p95_ms":6.32,"p99_ms":6.66,"max_ms":9.85}}
+{"max_batch":16,"transport":"grpc","summary":{"rate_target":800,"requests":16000,"throughput_rps":800,"checks_rate":1,"dropped_iterations":0,"avg_ms":4.06,"p50_ms":4.38,"p95_ms":6.59,"p99_ms":6.84,"max_ms":8.5}}

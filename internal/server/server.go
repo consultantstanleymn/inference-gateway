@@ -49,8 +49,17 @@ func New(svc *Service, m *telemetry.Metrics) *Server {
 		w.WriteHeader(http.StatusServiceUnavailable)
 	})
 	mux.Handle("GET /metrics", promhttp.HandlerFor(m.Registry, promhttp.HandlerOpts{}))
+	// While not ready (warm-up or draining) ask clients to drop the connection after each answer.
+	// Without this a client can reuse an idle keep-alive connection at the moment the server
+	// closes it, and see an EOF. That showed up as 4 failed requests in one rolling upgrade run.
+	drain := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if !s.ready.Load() {
+			w.Header().Set("Connection", "close")
+		}
+		mux.ServeHTTP(w, r)
+	})
 	s.http = &http.Server{
-		Handler:           otelhttp.NewHandler(mux, "request", otelhttp.WithFilter(func(r *http.Request) bool { return r.URL.Path == "/v1/classify" })),
+		Handler:           otelhttp.NewHandler(drain, "request", otelhttp.WithFilter(func(r *http.Request) bool { return r.URL.Path == "/v1/classify" })),
 		ReadHeaderTimeout: 5 * time.Second,
 	}
 	s.grpc = grpc.NewServer(grpc.StatsHandler(otelgrpc.NewServerHandler()))

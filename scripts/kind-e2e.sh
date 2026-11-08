@@ -35,7 +35,9 @@ step_cluster() {
   if ! kind get clusters 2>/dev/null | grep -qx "$CLUSTER"; then kind create cluster --name "$CLUSTER" --wait 240s; fi
   kubectl config use-context "kind-$CLUSTER" >/dev/null
   if [ "$TOOL" = podman ]; then
-    "$TOOL" save "$IMAGE" -o out/ig-image.tar && kind load image-archive out/ig-image.tar --name "$CLUSTER"
+    rm -f out/ig-image.tar
+    "$TOOL" save "$IMAGE" -o out/ig-image.tar
+    kind load image-archive out/ig-image.tar --name "$CLUSTER"
   else kind load docker-image "$IMAGE" --name "$CLUSTER"; fi
   say "== metrics-server"
   curl -fsSL "$MS_URL" | sed 's|- --metric-resolution=15s|- --metric-resolution=15s\n        - --kubelet-insecure-tls|' | kubectl apply -f - >/dev/null
@@ -99,10 +101,17 @@ wait_k6() { # wait_k6 <name> <timeout seconds>
 }
 
 step_rolling_upgrade() {
-  say "== rolling upgrade v1 -> v2 under load (10 VUs, readiness watched)"
+  for _ in $(seq "${ROLLING_REPEATS:-1}"); do rolling_once || return 1; done
+}
+
+rolling_once() {
+  local cur target
+  cur=$(kubectl get configmap inference-gateway -o jsonpath='{.data.GATEWAY_MODEL_DIR}' | sed 's|/models/||')
+  if [ "$cur" = v1 ]; then target=v2; else target=v1; fi
+  say "== rolling upgrade $cur -> $target under load (10 VUs, readiness watched)"
   run_k6_job k6-rolling rolling.js URL=http://inference-gateway:8080/v1/classify VUS=10 DURATION=75s
   sleep 15
-  helm_ig v2 &
+  helm_ig "$target" &
   local hpid=$! observed=0 violations=0
   while kill -0 "$hpid" 2>/dev/null; do
     while read -r ip; do
@@ -110,7 +119,11 @@ step_rolling_upgrade() {
       observed=$((observed+1))
       if kubectl get endpointslices -l kubernetes.io/service-name=inference-gateway -o json |
          jq -e --arg ip "$ip" '[.items[].endpoints[]? | select(.conditions.ready==true) | .addresses[]] | index($ip)' >/dev/null; then
-        violations=$((violations+1))
+        # The two reads are not atomic. Count a violation only if the pod is still not ready now.
+        if kubectl get pods -l app.kubernetes.io/name=inference-gateway -o json |
+           jq -e --arg ip "$ip" '[.items[] | select(.status.podIP==$ip and ([.status.containerStatuses[]?.ready]|all|not))] | length > 0' >/dev/null; then
+          violations=$((violations+1))
+        fi
       fi
     done < <(kubectl get pods -l app.kubernetes.io/name=inference-gateway -o json |
       jq -r '.items[] | select(.metadata.deletionTimestamp==null and .status.phase=="Running" and ([.status.containerStatuses[]?.ready]|all|not)) | .status.podIP')
@@ -121,13 +134,20 @@ step_rolling_upgrade() {
   say "k6 under upgrade: $out"
   say "readiness samples (running but not ready): $observed, of which receiving traffic: $violations"
   echo "$out" | jq -e '.non_2xx==0 and .failed_rate==0 and .v1>0 and .v2>0' >/dev/null || { say "FAIL rolling upgrade"; return 1; }
+  say "$(echo "$out" | jq -r --arg t "$target" 'if $t=="v2" then "responses moved v1 -> v2" else "responses moved v2 -> v1" end')"
   [ "$observed" -gt 0 ] && [ "$violations" -eq 0 ] || { say "FAIL readiness (observed=$observed violations=$violations)"; return 1; }
-  say "PASS rolling upgrade: zero non-2xx, responses moved v1 -> v2, no traffic before ready"
+  say "PASS rolling upgrade $cur -> $target: zero non-2xx, no traffic before ready"
 }
 
 step_hpa() {
   say "== HPA scale-up under load"
   local min; min=$(kubectl get hpa inference-gateway -o jsonpath='{.spec.minReplicas}')
+  # Start from an idle autoscaler, so a scale-up cannot be left over from earlier load.
+  local idle; idle=$(kubectl get hpa inference-gateway -o jsonpath='{.status.desiredReplicas}')
+  [ "${idle:-0}" -le "$min" ] || { say "FAIL HPA precondition: desired $idle is above min $min before load"; return 1; }
+  local cur; cur=$(kubectl get deploy inference-gateway -o jsonpath='{.status.replicas}')
+  [ "${cur:-0}" -le "$min" ] || { say "FAIL HPA precondition: running $cur replicas, min $min"; return 1; }
+  say "HPA before load: running $cur, desired $idle, min $min"
   for attempt in 1 2; do
     run_k6_job k6-hpa rolling.js URL=http://inference-gateway:8080/v1/classify VUS=60 DURATION=170s
     local ok=0 t0=$SECONDS
@@ -154,10 +174,12 @@ step_trace() {
   for _ in 1 2 3; do bin/probe http -addr "127.0.0.1:$hp" -text "trace me" >/dev/null; done
   cleanup; PF_PIDS=()
   for _ in $(seq 20); do
-    if kubectl logs deploy/otel-collector -c tail | python3 scripts/check_trace.py | tee -a "$REPORT" | grep -q '^PASS'; then return 0; fi
+    if kubectl logs deploy/otel-collector -c tail | python3 scripts/check_trace.py > out/trace-check.txt; then
+      say "$(cat out/trace-check.txt)"; return 0
+    fi
     sleep 3
   done
-  say "FAIL trace"; return 1
+  say "FAIL trace: $(cat out/trace-check.txt)"; return 1
 }
 
 step_health_pdb() {
@@ -166,6 +188,6 @@ step_health_pdb() {
   kubectl get deploy inference-gateway -o json | jq '.spec.template.spec.containers[0] | {readinessProbe, livenessProbe, resources, securityContext}' | tee -a "$REPORT" >/dev/null
 }
 
-STEPS=${*:-static cluster install_and_smoke rolling_upgrade hpa trace health_pdb}
+STEPS=${*:-static cluster install_and_smoke hpa rolling_upgrade trace health_pdb}
 for s in $STEPS; do "step_$s"; done
 say "ALL REQUESTED STEPS FINISHED"

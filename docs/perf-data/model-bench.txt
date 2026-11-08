@@ -1,0 +1,13 @@
+goos: linux
+goarch: amd64
+pkg: github.com/consultantstanleymn/inference-gateway/internal/model
+cpu: Intel(R) Core(TM) i7-4770HQ CPU @ 2.20GHz
+BenchmarkRun/batch=1-8         	   68060	     32923 ns/op	     32923 ns/row
+BenchmarkRun/batch=2-8         	   64380	     37630 ns/op	     18815 ns/row
+BenchmarkRun/batch=4-8         	   51356	     46372 ns/op	     11593 ns/row
+BenchmarkRun/batch=8-8         	   39428	     61254 ns/op	      7657 ns/row
+BenchmarkRun/batch=16-8        	   26637	     95216 ns/op	      5951 ns/row
+BenchmarkRun/batch=32-8        	   16574	    147009 ns/op	      4594 ns/row
+BenchmarkRun/batch=64-8        	    8890	    255310 ns/op	      3989 ns/row
+PASS
+ok  	github.com/consultantstanleymn/inference-gateway/internal/model	16.812s

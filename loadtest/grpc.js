@@ -32,8 +32,8 @@ export function handleSummary(data) {
   const d = m.grpc_req_duration.values;
   const out = {
     rate_target: rate,
-    requests: m.grpc_reqs.values.count,
-    throughput_rps: +m.grpc_reqs.values.rate.toFixed(1),
+    requests: m.iterations.values.count,
+    throughput_rps: +m.iterations.values.rate.toFixed(1),
     checks_rate: m.checks.values.rate,
     dropped_iterations: m.dropped_iterations ? m.dropped_iterations.values.count : 0,
     avg_ms: +d.avg.toFixed(2), p50_ms: +d.med.toFixed(2), p95_ms: +d['p(95)'].toFixed(2), p99_ms: +d['p(99)'].toFixed(2), max_ms: +d.max.toFixed(2),
