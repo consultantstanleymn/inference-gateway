@@ -60,7 +60,7 @@ jobs:
         run: scripts/fetch-onnxruntime.sh
       - uses: golangci/golangci-lint-action@v8
         with:
-          version: v2.1
+          version: v2.11.3
       - uses: bufbuild/buf-action@v1
         with:
           lint: true
@@ -78,7 +78,7 @@ jobs:
       - name: Build image
         run: docker build -f Containerfile -t localhost/inference-gateway:dev .
       - name: Trivy scan (fail on critical)
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: localhost/inference-gateway:dev
           severity: CRITICAL
