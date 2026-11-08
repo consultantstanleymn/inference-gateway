@@ -51,7 +51,7 @@ More: [docs/ONBOARDING.md](docs/ONBOARDING.md) (setup and code map), [docs/RUNBO
 | Go inference vs Python ONNX Runtime, 200 samples | same top intent, probabilities within 1e-4 (one text per call) |
 | Go tests with `-race` | all pass (see "Verification status") |
 | Serving, HTTP, this laptop | up to about 10.5k req/s with `max_batch=1`, 11.2k with `max_batch=16`; p50 0.4 ms vs 4 ms at low load |
-| Kubernetes on kind (local, rootless podman) | rolling upgrade v1 to v2 under load: 0 non-2xx; HPA scaled 2 to 4; trace tree found |
+| Kubernetes on kind (local, rootless podman) | three rolling upgrades under load (v1 to v2, v2 to v1, v1 to v2): 0 non-2xx; HPA desired replicas rose to the maximum of 4; trace tree found |
 
 Details and caveats are in `docs/PERF.md` and `docs/DEMO.md`. Batching raised throughput only near saturation, and by a few percent end to end. At lower load it only added latency.
 
@@ -71,7 +71,7 @@ NOT run yet:
 - **GitHub Actions.** The workflow is written and the commands in it were run locally, but the workflow itself has never run. Every action version in it is unverified. Do not claim a CI-tested result until the four jobs are green on `main`.
 - **`buf lint`.** `buf` is not packaged in Fedora and this project installs tools only from Fedora. It runs in CI only.
 - **`kubeconform -strict`.** Same reason. It runs in CI only. `helm lint` ran locally.
-- **Trivy image scan.** Trivy is installed, but the scan is left to the `image` CI job.
+- **Trivy in CI.** A local `trivy image --severity CRITICAL --ignore-unfixed` scan found 0 critical findings (Debian base and Go binary). The `image` CI job has not run.
 - **`ghz`.** Not packaged in Fedora. gRPC load used k6's gRPC client instead.
 - Docker. Docker is not installed here. CI uses Docker. Local runs used rootless podman.
 
