@@ -1,0 +1,101 @@
+== helm lint and kubeconform
+==> Linting deploy/helm/inference-gateway
+[INFO] Chart.yaml: icon is recommended
+
+1 chart(s) linted, 0 chart(s) failed
+SKIPPED kubeconform (not installed locally, CI runs it)
+== kind cluster (podman)
+== metrics-server
+== helm install model v1
+deployment "inference-gateway" successfully rolled out
+== smoke over HTTP
+{"intent":"lost_or_stolen_card","probability":0.9993979,"model_version":"v1","top":[{"intent":"lost_or_stolen_card","probability":0.9993979},{"intent":"compromised_card","probability":0.0002639438},{"intent":"card_not_working","probability":0.00017615563}]}
+
+== smoke over gRPC
+{
+  "intent": "lost_or_stolen_card",
+  "probability": 0.9993979,
+  "modelVersion": "v1",
+  "top": [
+    {
+      "intent": "lost_or_stolen_card",
+      "probability": 0.9993979
+    },
+    {
+      "intent": "compromised_card",
+      "probability": 0.0002639438
+    },
+    {
+      "intent": "card_not_working",
+      "probability": 0.00017615563
+    }
+  ]
+}
+== HPA scale-up under load
+HPA before load: running 1, desired 0, min 2
+HPA desired replicas 4 (min 2) after 36 s, attempt 1
+PASS HPA
+== rolling upgrade v1 -> v2 under load (10 VUs, readiness watched)
+k6 under upgrade: {"requests":122106,"non_2xx":0,"failed_rate":0,"v1":77812,"v2":44294,"p95_ms":6.57}
+readiness samples (running but not ready): 43, of which receiving traffic: 0
+responses moved v1 -> v2
+PASS rolling upgrade v1 -> v2: zero non-2xx, no traffic before ready
+== rolling upgrade v2 -> v1 under load (10 VUs, readiness watched)
+k6 under upgrade: {"requests":124689,"non_2xx":0,"failed_rate":0,"v1":56119,"v2":68570,"p95_ms":6.37}
+readiness samples (running but not ready): 35, of which receiving traffic: 0
+responses moved v2 -> v1
+PASS rolling upgrade v2 -> v1: zero non-2xx, no traffic before ready
+== rolling upgrade v1 -> v2 under load (10 VUs, readiness watched)
+k6 under upgrade: {"requests":124613,"non_2xx":0,"failed_rate":0,"v1":68009,"v2":56604,"p95_ms":6.32}
+readiness samples (running but not ready): 36, of which receiving traffic: 0
+responses moved v1 -> v2
+PASS rolling upgrade v1 -> v2: zero non-2xx, no traffic before ready
+== trace check with OpenTelemetry Collector (file exporter)
+PASS trace cb7563e2d0b92db179b4bcdd3319fab3: POST /v1/classify -> queue.wait, batch.run (batch.size=1)
+== pdb and probes present
+NAME                MIN AVAILABLE   MAX UNAVAILABLE   ALLOWED DISRUPTIONS   AGE
+inference-gateway   1               N/A               3                     5m49s
+{
+  "readinessProbe": {
+    "failureThreshold": 2,
+    "httpGet": {
+      "path": "/readyz",
+      "port": "http",
+      "scheme": "HTTP"
+    },
+    "periodSeconds": 2,
+    "successThreshold": 1,
+    "timeoutSeconds": 1
+  },
+  "livenessProbe": {
+    "failureThreshold": 3,
+    "httpGet": {
+      "path": "/healthz",
+      "port": "http",
+      "scheme": "HTTP"
+    },
+    "periodSeconds": 10,
+    "successThreshold": 1,
+    "timeoutSeconds": 1
+  },
+  "resources": {
+    "limits": {
+      "cpu": "1",
+      "memory": "512Mi"
+    },
+    "requests": {
+      "cpu": "250m",
+      "memory": "256Mi"
+    }
+  },
+  "securityContext": {
+    "allowPrivilegeEscalation": false,
+    "capabilities": {
+      "drop": [
+        "ALL"
+      ]
+    },
+    "readOnlyRootFilesystem": true
+  }
+}
+ALL REQUESTED STEPS FINISHED
