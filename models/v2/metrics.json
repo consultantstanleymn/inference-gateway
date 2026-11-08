@@ -1,0 +1,18 @@
+{
+  "version": "v2",
+  "seed": 2,
+  "epochs": 15,
+  "hidden": 128,
+  "fp32_test_accuracy": 0.862987012987013,
+  "fp32_test_macro_f1": 0.8636667583106316,
+  "train_seconds_cpu_1_thread": 454,
+  "train_examples": 10003,
+  "test_examples": 3080,
+  "onnx_fp32_test_accuracy": 0.862987012987013,
+  "onnx_fp32_test_macro_f1": 0.8636667583106316,
+  "int8_test_accuracy": 0.8623376623376623,
+  "int8_test_macro_f1": 0.8628787669685756,
+  "onnx_vs_torch_max_abs_diff_200": 5.364418029785156e-07,
+  "fp32_onnx_bytes": 33612439,
+  "int8_onnx_bytes": 8407294
+}
