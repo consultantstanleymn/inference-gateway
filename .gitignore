@@ -1,0 +1,9 @@
+.venv/
+bin/
+third_party/
+models/*/model.pt
+models/*/model.fp32.onnx
+__pycache__/
+*.pyc
+.cache/
+out/
