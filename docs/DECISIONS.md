@@ -51,3 +51,7 @@ Why: simple and enough to show scale-up. Queue depth or batch latency would be a
 ## 11. gRPC stub is hand-written, load tests use k6 for gRPC
 Choice: `protoc` and `protoc-gen-go` come from Fedora packages. `protoc-gen-go-grpc`, `buf` and `ghz` are not packaged there, and this project installs build tools only from the Fedora repositories. So `gen/inferencev1/inference_grpc.pb.go` is written by hand in the same shape the generator produces, and gRPC load uses k6's gRPC client instead of ghz.
 Cost: `buf lint` runs in CI only. If the proto changes, the stub must be updated by hand or regenerated with `buf generate`.
+
+## 12. `Connection: close` while draining
+Choice: when the server is not ready (warm-up or shutdown), every HTTP response carries `Connection: close`.
+Why: one rolling-upgrade run had 4 requests fail with `EOF`. A client reused an idle keep-alive connection just as the old pod closed it. Telling clients to drop the connection during the drain window removes most of that race. Three later upgrades had zero errors. It reduces the risk. It does not remove it for clients that ignore the header.
