@@ -1,0 +1,68 @@
+name: inf-diagnostics
+
+services:
+  gateway:
+    image: localhost/inference-gateway:dev
+    container_name: inf-gateway
+    environment:
+      GATEWAY_MODEL_DIR: /models/v1
+      GATEWAY_HTTP_ADDR: ":8080"
+      GATEWAY_GRPC_ADDR: ":9090"
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+    ports:
+      - "127.0.0.1:25480:8080"
+      - "127.0.0.1:25490:9090"
+    cpus: "2.0"
+    depends_on:
+      - otel-collector
+    restart: unless-stopped
+
+  otel-collector:
+    image: docker.io/otel/opentelemetry-collector-contrib:0.120.0
+    container_name: inf-otel-collector
+    command: ["--config=/etc/otelcol/config.yaml"]
+    volumes:
+      - ./otel-collector.yaml:/etc/otelcol/config.yaml:ro,z
+    depends_on:
+      - jaeger
+    restart: unless-stopped
+
+  jaeger:
+    image: docker.io/jaegertracing/all-in-one:1.66.0
+    container_name: inf-jaeger
+    environment:
+      COLLECTOR_OTLP_ENABLED: "true"
+    ports:
+      - "127.0.0.1:25486:16686"
+    restart: unless-stopped
+
+  prometheus:
+    image: docker.io/prom/prometheus:v2.55.1
+    container_name: inf-prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --enable-feature=exemplar-storage
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro,z
+      - ./prometheus/rules:/etc/prometheus/rules:ro,z
+    ports:
+      - "127.0.0.1:25409:9090"
+    depends_on:
+      - gateway
+    restart: unless-stopped
+
+  grafana:
+    image: docker.io/grafana/grafana-oss:11.4.0
+    container_name: inf-grafana
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-local-test-only-admin}
+      GF_AUTH_ANONYMOUS_ENABLED: "false"
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro,z
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro,z
+    ports:
+      - "127.0.0.1:25430:3000"
+    depends_on:
+      - prometheus
+    restart: unless-stopped
