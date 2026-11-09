@@ -1,0 +1,19 @@
+# Evidence: Canary pass run: weight timeline, gate decisions and client view
+label: VERIFIED LOCALLY
+date: 2026-11-09 11:13 UTC (the run; this file was written later)
+code commit: 8090d6828124be1ab992b1a8c804c1efd80f139b
+working tree clean at run time: yes
+machine: MacBook Pro (mid 2015), 8 logical CPUs, 16 GB RAM, Fedora 44, podman 5.8.7 (measured on one laptop)
+command: scripts/canary-run.sh pass
+notes: Canary v2 got 10, 25, 50, 100 percent of the traffic, 20 s per step. The gate promoted every step. Clients saw no error. Both gateways ran on this laptop with the load generator, so latency is close to equal by design. It proves the controller logic and the proxy split, not production traffic.
+---
+running k6 for 95s at rate 300
+===== canary controller output =====
+{"time":"2026-11-09T11:13:29.906845468Z","step":0,"weight":10,"action":"promote","reason":"canary within gate","canary_requests":609,"canary_errors":0,"canary_p95_ms":6,"stable_requests":5383,"stable_errors":0}
+{"time":"2026-11-09T11:13:49.908009627Z","step":1,"weight":25,"action":"promote","reason":"canary within gate","canary_requests":1585,"canary_errors":0,"canary_p95_ms":6,"stable_requests":4415,"stable_errors":0}
+{"time":"2026-11-09T11:14:09.908769456Z","step":2,"weight":50,"action":"promote","reason":"canary within gate","canary_requests":3028,"canary_errors":0,"canary_p95_ms":6,"stable_requests":2972,"stable_errors":0}
+{"time":"2026-11-09T11:14:29.910020443Z","step":3,"weight":100,"action":"promote","reason":"canary within gate","canary_requests":6000,"canary_errors":0,"canary_p95_ms":6,"stable_requests":1,"stable_errors":0}
+{"result":"promoted","weight":100}
+===== k6 summary =====
+K6SUMMARY {"rate_target":300,"requests":28501,"throughput_rps":300,"failed_rate":0,"shed_429":0,"v1":12770,"v2":15731,"dropped_iterations":0,"avg_ms":4.49,"p50_ms":5.7,"p95_ms":6.34,"p99_ms":6.61,"max_ms":7.55}
+===== k6 exit status: 0 =====

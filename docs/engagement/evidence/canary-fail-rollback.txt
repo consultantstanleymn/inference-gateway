@@ -1,0 +1,16 @@
+# Evidence: Canary fail run: weight timeline, gate decisions and client view
+label: VERIFIED LOCALLY
+date: 2026-11-09 11:13 UTC (the run; this file was written later)
+code commit: 8090d6828124be1ab992b1a8c804c1efd80f139b
+working tree clean at run time: yes
+machine: MacBook Pro (mid 2015), 8 logical CPUs, 16 GB RAM, Fedora 44, podman 5.8.7 (measured on one laptop)
+command: scripts/canary-run.sh fail
+notes: Canary v2 sat behind a test helper that fails 30 percent of classify calls with HTTP 500. The gate saw the canary error rate at the first step and set the weight to 0 at once. Clients saw a small share of errors during that first 20 s window (see the k6 line). It proves the rollback logic on this laptop.
+---
+running k6 for 95s at rate 300
+===== canary controller output =====
+{"time":"2026-11-09T11:15:10.467317906Z","step":0,"weight":10,"action":"rollback","reason":"canary error rate 0.3186 exceeds max 0.0200","canary_requests":609,"canary_errors":194,"canary_p95_ms":6,"stable_requests":5383,"stable_errors":0}
+{"reason":"canary rolled back: canary error rate 0.3186 exceeds max 0.0200","result":"rolled_back"}
+===== k6 summary =====
+K6SUMMARY {"rate_target":300,"requests":28501,"throughput_rps":300,"failed_rate":0.006806778709518964,"shed_429":0,"v1":27891,"v2":416,"dropped_iterations":0,"avg_ms":4.22,"p50_ms":5.66,"p95_ms":6.26,"p99_ms":6.54,"max_ms":23.16}
+===== k6 exit status: 0 =====
