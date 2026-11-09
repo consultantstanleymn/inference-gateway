@@ -73,4 +73,30 @@ curl -fs "${BASE}/metrics" > "${METRICS_FILE}"
 series=$(grep -vc '^#' "${METRICS_FILE}" || true)
 printf 'metrics series lines: %s\n' "${series}"
 
+step "run every dashboard query against Prometheus"
+PROM="http://127.0.0.1:25409"
+QUERY_REPORT="${EVIDENCE_DIR}/dashboard-queries.txt"
+sleep 12 # let Prometheus scrape after the load
+: > "${QUERY_REPORT}"
+jq -r '.panels[] | .title as $t | .targets[] | [$t, .expr] | @tsv' deploy/compose/grafana/dashboards/golden-signals.json \
+  | while IFS=$'\t' read -r title expr; do
+      n=$(curl -fs --get "${PROM}/api/v1/query" --data-urlencode "query=${expr}" | jq '.data.result | length')
+      printf '%s series | %s | %s\n' "${n}" "${title}" "${expr}" | tee -a "${QUERY_REPORT}"
+    done
+
+step "check Grafana loads the provisioned dashboard"
+GRAFANA="http://127.0.0.1:25430"
+GRAFANA_PASSWORD="${GRAFANA_ADMIN_PASSWORD:-local-test-only-admin}"
+for _ in $(seq 1 30); do
+  if curl -fs "${GRAFANA}/api/health" >/dev/null 2>&1; then break; fi
+  sleep 2
+done
+curl -fs -u "admin:${GRAFANA_PASSWORD}" "${GRAFANA}/api/dashboards/uid/inf-golden" \
+  | jq '{title: .dashboard.title, uid: .dashboard.uid, panels: (.dashboard.panels | length)}' | tee -a "${QUERY_REPORT}"
+
+if [ -n "${SHOT_CMD:-}" ]; then
+  step "take the Grafana screenshot"
+  eval "${SHOT_CMD}"
+fi
+
 step "done"
