@@ -75,7 +75,8 @@ def main() -> int:
     lib = ROOT / "third_party" / "libonnxruntime.so"
     manifest = {
         "git_commit": run(["git", "rev-parse", "HEAD"]),
-        "git_tree_clean": run(["git", "status", "--porcelain"]) == "",
+        # The manifest and the evidence files are outputs of this step, so they do not count as changes.
+        "git_tree_clean": run(["git", "status", "--porcelain", "--", ".", ":!release", ":!docs/engagement/evidence"]) == "",
         "image": {"name": args.image, "id": image_id, "digest": image_digest},
         "models": models(),
         "quality_gate_sha256": sha256_file(gate) if gate.exists() else "",
