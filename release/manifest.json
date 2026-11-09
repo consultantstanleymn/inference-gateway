@@ -1,0 +1,33 @@
+{
+  "git_commit": "4495e94187150d59213923afc0a991d3ef251c30",
+  "git_tree_clean": true,
+  "go": {
+    "go_sum_sha256": "b3644d3ce07fa034d388e507789cbfd6ab6766411b51ea4b690fe09bcd712e91",
+    "version": "go1.26.10-X:nodwarf5"
+  },
+  "image": {
+    "digest": "sha256:8290f32c14c4664c0af3b6af7054fbeb77ebb2633ae2d65a5ae2b5d25d70f5e6",
+    "id": "6b60246934bbd54d1b2a55f3fe5ee268f29424af3f5e189068e62fe43815ea32",
+    "name": "localhost/inference-gateway:dev"
+  },
+  "models": [
+    {
+      "meta_json_sha256": "c3198df8fdd2a6f7c321e21e4a659bfae68536bd267f015c37f776816df6ff2d",
+      "meta_sha256_field": "d119657bd65ab69cdb3bf3e1972d156f89ca5b1717dc42b1ead4b3cf463c9da7",
+      "model_onnx_sha256": "d119657bd65ab69cdb3bf3e1972d156f89ca5b1717dc42b1ead4b3cf463c9da7",
+      "name": "v1"
+    },
+    {
+      "meta_json_sha256": "c2b66fd84c91323633080b59a9f98b9cbe86fe39d6839f6ec4695f0a504e3727",
+      "meta_sha256_field": "7509fad508c14785d7d3f29e4d536d71a87ce8de729f4792b88ebaffbd829182",
+      "model_onnx_sha256": "7509fad508c14785d7d3f29e4d536d71a87ce8de729f4792b88ebaffbd829182",
+      "name": "v2"
+    }
+  ],
+  "onnxruntime": {
+    "archive_sha256": "cc5c72baf5ae5c8238a6841f0897227be2d02826b9cf98eaf02fdefaeeb03a57",
+    "library_sha256": "469849977cb60744ea160927e1a3a0643fd4c55c0aff743251c6d293402e334e",
+    "version": "1.31.0"
+  },
+  "quality_gate_sha256": "1c32f6215cb9519900e5a5c564c022915ec58c9671dd75e559c233980d8e23f6"
+}

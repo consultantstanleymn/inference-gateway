@@ -1,0 +1,30 @@
+# Evidence: Image build, image SBOM, image scan and release manifest
+label: PARTLY RUN
+date: 2026-11-09 11:53 UTC
+code commit: 4495e94187150d59213923afc0a991d3ef251c30
+working tree clean at run time: yes
+machine: MacBook Pro (mid 2015), 8 logical CPUs, 16 GB RAM, Fedora 44, podman 5.8.7 (measured on one laptop)
+command: make image; trivy image --format cyclonedx ...; python3 scripts/release_manifest.py; actionlint .github/workflows/*.yml
+notes: Ran: image build, SBOM, scan, manifest. Did not run: push to GHCR and cosign signing (release.yml is authored only). The image was built from the same Go and model files as this commit; later commits changed documents only.
+---
+$ make image   (tail of the output)
+--> 6b60246934bb
+Successfully tagged localhost/inference-gateway:dev
+6b60246934bbd54d1b2a55f3fe5ee268f29424af3f5e189068e62fe43815ea32
+
+$ trivy image --format cyclonedx --output docs/engagement/evidence/sbom-image.cdx.json localhost/inference-gateway:dev
+CycloneDX 1.6 components: 47
+
+$ trivy image --severity HIGH,CRITICAL --ignore-unfixed localhost/inference-gateway:dev
+Total: 1 (HIGH: 1, CRITICAL: 0)
+│ libssl3 │ CVE-2026-84782 │ HIGH     │ fixed  │ 3.0.20-1~deb12u2  │ 3.0.22-1~deb12u2 │ openssl: compat-openss
+(x/net is no longer reported: it was bumped to v0.62.0. The remaining libssl3 finding is filed in security/exceptions.json until 2027-02-07.)
+
+$ python3 scripts/release_manifest.py
+wrote release/manifest.json: 2 models
+{"git_commit":"4495e94187150d59213923afc0a991d3ef251c30","git_tree_clean":true,"image":"6b60246934bbd54d1b2a55f3fe5ee268f29424af3f5e189068e62fe43815ea32","models":[{"name":"v1","model_onnx_sha256":"d119657bd65ab69cdb3bf3e1972d156f89ca5b1717dc42b1ead4b3cf463c9da7"},{"name":"v2","model_onnx_sha256":"7509fad508c14785d7d3f29e4d536d71a87ce8de729f4792b88ebaffbd829182"}]}
+
+$ actionlint .github/workflows/*.yml
+actionlint: clean
+
+Authored, not run: .github/workflows/release.yml is written and syntax-checked with actionlint 1.7.12. It was not executed against GitHub Actions. Reason: needs GitHub Actions. The image push and the cosign signing did not happen.
