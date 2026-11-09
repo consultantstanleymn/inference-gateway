@@ -1,0 +1,153 @@
+{
+  "uid": "inf-golden",
+  "title": "Inference gateway: golden signals",
+  "schemaVersion": 39,
+  "refresh": "5s",
+  "time": { "from": "now-15m", "to": "now" },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Latency p50, p95, p99 by transport",
+      "type": "timeseries",
+      "datasource": { "type": "prometheus", "uid": "prom" },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "prometheus", "uid": "prom" },
+          "expr": "histogram_quantile(0.5, sum by (le, transport) (rate(gateway_request_duration_seconds_bucket[1m])))",
+          "legendFormat": "p50 {{transport}}"
+        },
+        {
+          "refId": "B",
+          "datasource": { "type": "prometheus", "uid": "prom" },
+          "expr": "histogram_quantile(0.95, sum by (le, transport) (rate(gateway_request_duration_seconds_bucket[1m])))",
+          "legendFormat": "p95 {{transport}}"
+        },
+        {
+          "refId": "C",
+          "datasource": { "type": "prometheus", "uid": "prom" },
+          "expr": "histogram_quantile(0.99, sum by (le, transport) (rate(gateway_request_duration_seconds_bucket[1m])))",
+          "legendFormat": "p99 {{transport}}"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Latency p95 by model version",
+      "type": "timeseries",
+      "datasource": { "type": "prometheus", "uid": "prom" },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "prometheus", "uid": "prom" },
+          "expr": "histogram_quantile(0.95, sum by (le, model_version) (rate(gateway_request_duration_seconds_bucket[1m])))",
+          "legendFormat": "p95 {{model_version}}"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Request rate by outcome",
+      "type": "timeseries",
+      "datasource": { "type": "prometheus", "uid": "prom" },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "prometheus", "uid": "prom" },
+          "expr": "sum by (outcome) (rate(gateway_requests_total[1m]))",
+          "legendFormat": "{{outcome}}"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Errors and sheds per second",
+      "type": "timeseries",
+      "datasource": { "type": "prometheus", "uid": "prom" },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "prometheus", "uid": "prom" },
+          "expr": "rate(gateway_shed_total[1m])",
+          "legendFormat": "shed"
+        },
+        {
+          "refId": "B",
+          "datasource": { "type": "prometheus", "uid": "prom" },
+          "expr": "sum(rate(gateway_requests_total{outcome=~\"error|timeout|closed\"}[1m]))",
+          "legendFormat": "errors"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Queue depth",
+      "type": "timeseries",
+      "datasource": { "type": "prometheus", "uid": "prom" },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 16 },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "prometheus", "uid": "prom" },
+          "expr": "gateway_queue_depth",
+          "legendFormat": "queue depth"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Queue wait p95",
+      "type": "timeseries",
+      "datasource": { "type": "prometheus", "uid": "prom" },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 16 },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "prometheus", "uid": "prom" },
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(gateway_queue_wait_seconds_bucket[1m])))",
+          "legendFormat": "queue wait p95"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "title": "Batch size p50 and p95",
+      "type": "timeseries",
+      "datasource": { "type": "prometheus", "uid": "prom" },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 24 },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "prometheus", "uid": "prom" },
+          "expr": "histogram_quantile(0.5, sum by (le) (rate(gateway_batch_size_bucket[1m])))",
+          "legendFormat": "batch p50"
+        },
+        {
+          "refId": "B",
+          "datasource": { "type": "prometheus", "uid": "prom" },
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(gateway_batch_size_bucket[1m])))",
+          "legendFormat": "batch p95"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "title": "CPU cores used",
+      "type": "timeseries",
+      "datasource": { "type": "prometheus", "uid": "prom" },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 24 },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "prometheus", "uid": "prom" },
+          "expr": "rate(process_cpu_seconds_total[1m])",
+          "legendFormat": "cores"
+        }
+      ]
+    }
+  ]
+}
