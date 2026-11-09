@@ -1,0 +1,34 @@
+File: gateway
+Build ID: d3ea81e9f61bdf579335ccde4c636ee97b7f6bcb
+Type: cpu
+Time: 2026-11-09 05:58:12 EST
+Duration: 20s, Total samples = 20.75s (103.74%)
+Showing nodes accounting for 9.75s, 46.99% of 20.75s total
+Dropped 682 nodes (cum <= 0.10s)
+Showing top 25 nodes out of 245
+      flat  flat%   sum%        cum   cum%
+     3.33s 16.05% 16.05%      3.33s 16.05%  internal/runtime/syscall/linux.Syscall6
+     1.32s  6.36% 22.41%      1.32s  6.36%  runtime.futex
+     0.83s  4.00% 26.41%      0.83s  4.00%  runtime.cgocall
+     0.34s  1.64% 28.05%      0.34s  1.64%  runtime.nextFreeFast (inline)
+     0.34s  1.64% 29.69%      0.54s  2.60%  runtime.tryDeferToSpanScan
+     0.32s  1.54% 31.23%      0.32s  1.54%  github.com/consultantstanleymn/inference-gateway/internal/server.(*Service).rank.func1
+     0.28s  1.35% 32.58%      0.46s  2.22%  runtime.scanObjectsSmall
+     0.25s  1.20% 33.78%      0.57s  2.75%  runtime.pcvalue
+     0.24s  1.16% 34.94%      0.39s  1.88%  runtime.scanblock
+     0.22s  1.06% 36.00%      0.24s  1.16%  runtime.(*mspan).writeHeapBitsSmall
+     0.22s  1.06% 37.06%      0.44s  2.12%  sort.partition_func
+     0.21s  1.01% 38.07%      0.21s  1.01%  runtime.memmove
+     0.20s  0.96% 39.04%      1.19s  5.73%  runtime.mallocgcSmallScanNoHeader
+     0.20s  0.96% 40.00%      0.20s  0.96%  runtime.memclrNoHeapPointers
+     0.19s  0.92% 40.92%      0.27s  1.30%  runtime.step
+     0.17s  0.82% 41.73%      0.51s  2.46%  runtime.scanObject
+     0.15s  0.72% 42.46%      0.15s  0.72%  runtime.usleep
+     0.13s  0.63% 43.08%      0.13s  0.63%  aeshashbody
+     0.12s  0.58% 43.66%      0.32s  1.54%  runtime.selectgo
+     0.12s  0.58% 44.24%      0.12s  0.58%  runtime.spanClass.sizeclass (inline)
+     0.12s  0.58% 44.82%      0.17s  0.82%  runtime.unlock2
+     0.12s  0.58% 45.40%      0.12s  0.58%  time.runtimeNow
+     0.11s  0.53% 45.93%      0.11s  0.53%  encoding/json.appendString[go.shape.string]
+     0.11s  0.53% 46.46%      7.56s 36.43%  go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp.(*middleware).serveHTTP
+     0.11s  0.53% 46.99%      0.26s  1.25%  runtime.lock2

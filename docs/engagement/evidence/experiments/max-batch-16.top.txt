@@ -1,0 +1,34 @@
+File: gateway
+Build ID: d3ea81e9f61bdf579335ccde4c636ee97b7f6bcb
+Type: cpu
+Time: 2026-11-09 06:02:27 EST
+Duration: 20s, Total samples = 21.02s (105.10%)
+Showing nodes accounting for 9.49s, 45.15% of 21.02s total
+Dropped 623 nodes (cum <= 0.11s)
+Showing top 25 nodes out of 255
+      flat  flat%   sum%        cum   cum%
+     3.63s 17.27% 17.27%      3.63s 17.27%  internal/runtime/syscall/linux.Syscall6
+     1.26s  5.99% 23.26%      1.26s  5.99%  runtime.futex
+     0.66s  3.14% 26.40%      0.66s  3.14%  runtime.cgocall
+     0.32s  1.52% 27.93%      0.32s  1.52%  github.com/consultantstanleymn/inference-gateway/internal/server.(*Service).rank.func1
+     0.32s  1.52% 29.45%      0.32s  1.52%  runtime.nextFreeFast (inline)
+     0.27s  1.28% 30.73%      0.41s  1.95%  runtime.tryDeferToSpanScan
+     0.24s  1.14% 31.87%      0.24s  1.14%  runtime.memmove
+     0.22s  1.05% 32.92%      0.54s  2.57%  runtime.pcvalue
+     0.20s  0.95% 33.87%      0.45s  2.14%  runtime.scanObject
+     0.20s  0.95% 34.82%      0.24s  1.14%  runtime.step
+     0.19s   0.9% 35.73%      0.48s  2.28%  runtime.scanObjectsSmall
+     0.19s   0.9% 36.63%      0.46s  2.19%  runtime.stealWork
+     0.17s  0.81% 37.44%      0.21s     1%  runtime.(*mspan).writeHeapBitsSmall
+     0.17s  0.81% 38.25%      0.35s  1.67%  runtime.selectgo
+     0.16s  0.76% 39.01%      0.16s  0.76%  runtime.memclrNoHeapPointers
+     0.14s  0.67% 39.68%      0.15s  0.71%  context.value
+     0.14s  0.67% 40.34%      2.03s  9.66%  runtime.mallocgc
+     0.14s  0.67% 41.01%      0.31s  1.47%  sort.partition_func
+     0.14s  0.67% 41.67%      0.14s  0.67%  time.nextStdChunk
+     0.13s  0.62% 42.29%      0.25s  1.19%  sort.insertionSort_func
+     0.12s  0.57% 42.86%      0.12s  0.57%  runtime.madvise
+     0.12s  0.57% 43.43%      0.12s  0.57%  runtime.nanotime
+     0.12s  0.57% 44.01%      0.23s  1.09%  runtime.scanblock
+     0.12s  0.57% 44.58%      0.12s  0.57%  runtime.usleep
+     0.12s  0.57% 45.15%      0.12s  0.57%  time.runtimeNow

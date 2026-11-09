@@ -1,0 +1,22 @@
+# Evidence: GC check: gctrace counts and GOGC=400 comparison
+label: VERIFIED LOCALLY
+date: 2026-11-09 11:10 UTC (the run; this file was written later)
+code commit: 8090d6828124be1ab992b1a8c804c1efd80f139b
+working tree clean at run time: yes
+machine: MacBook Pro (mid 2015), 8 logical CPUs, 16 GB RAM, Fedora 44, podman 5.8.7 (measured on one laptop)
+command: GODEBUG=gctrace=1 EXPERIMENT_SAVE_LOG=1 EXPERIMENT_OUT=$EXP/gc-gctrace scripts/experiment.sh --factor workers --values 1 --rate 6000 --duration 60s; GOGC=400 EXPERIMENT_OUT=$EXP/gc-gogc400 scripts/experiment.sh --factor workers --values 1 --rate 6000 --duration 60s
+notes: One run each, load generator on the same laptop. GC is a real CPU cost (8.66 percent of samples) but the stop-the-world pauses are far shorter than the p99 latency, so GC does not explain the tail at this rate.
+---
+GC cycles in the gctrace run: 3587 over 61.0 s of gateway uptime (58.8 per second)
+Total stop-the-world time (first plus third number of each gctrace line): 601.1 ms, mean 0.168 ms per cycle, 0.98 percent of wall time
+
+run                         rps     p50 ms  p95 ms  p99 ms  cores used
+baseline (GOGC default)     5995.7  1.94    3.61    4.09    1.19
+GODEBUG=gctrace=1           5999.5  1.93    3.59    4.03    1.15
+GOGC=400                    5998.7  1.87    3.55    3.83    0.93
+
+pprof of the baseline run (workers-1.pb.gz), 20.89 s of samples:
+  runtime.gcBgMarkWorker (cumulative)  1.81 s = 8.66 percent
+  tokenize.Features (cumulative)       0.22 s = 1.05 percent  (about 1.8 microseconds per request at 6000 requests per second)
+  model.(*Model).Run (batch run)       0.82 s = 3.93 percent
+  Service.rank (cumulative)            1.17 s = 5.60 percent

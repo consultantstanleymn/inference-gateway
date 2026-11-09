@@ -1,0 +1,27 @@
+# Evidence: Tokenizer cost compared with the batch run
+label: VERIFIED LOCALLY
+date: 2026-11-09 11:10 UTC (the run; this file was written later)
+code commit: 8090d6828124be1ab992b1a8c804c1efd80f139b
+working tree clean at run time: yes
+machine: MacBook Pro (mid 2015), 8 logical CPUs, 16 GB RAM, Fedora 44, podman 5.8.7 (measured on one laptop)
+command: go test -run XXX -bench . -benchmem ./internal/tokenize/ ./internal/model/ ; go tool pprof -top -focus=tokenize.Features docs/engagement/evidence/experiments/workers-1.pb.gz
+notes: The benchmark ran while no other heavy job held the lock, but the laptop is shared. The tokenizer share comes from the profile, not from a benchmark.
+---
+go test -run XXX -bench . -benchmem ./internal/tokenize/ ./internal/model/
+PASS
+ok  	github.com/consultantstanleymn/inference-gateway/internal/tokenize	0.002s
+goos: linux
+goarch: amd64
+pkg: github.com/consultantstanleymn/inference-gateway/internal/model
+cpu: Intel(R) Core(TM) i7-4770HQ CPU @ 2.20GHz
+BenchmarkRun/batch=1-8         	   53337	     22375 ns/op	     22375 ns/row	    1360 B/op	      25 allocs/op
+BenchmarkRun/batch=2-8         	   45403	     26238 ns/op	     13119 ns/row	    2328 B/op	      26 allocs/op
+BenchmarkRun/batch=4-8         	   35661	     32887 ns/op	      8222 ns/row	    4344 B/op	      28 allocs/op
+BenchmarkRun/batch=8-8         	   27620	     43676 ns/op	      5459 ns/row	    8504 B/op	      32 allocs/op
+BenchmarkRun/batch=16-8        	   18524	     64287 ns/op	      4018 ns/row	   16248 B/op	      40 allocs/op
+BenchmarkRun/batch=32-8        	   10000	    103842 ns/op	      3245 ns/row	   31480 B/op	      56 allocs/op
+BenchmarkRun/batch=64-8        	    5878	    183470 ns/op	      2867 ns/row	   63224 B/op	      88 allocs/op
+PASS
+ok  	github.com/consultantstanleymn/inference-gateway/internal/model	8.146s
+
+The tokenize package has no benchmark, so its cost per request comes from the pprof profile: tokenize.Features used 0.22 s of 20.89 s of samples (1.05 percent), about 1.8 microseconds per request at 6000 requests per second. The model benchmark gives 4018 ns per row at batch 16 (64287 ns per call). The tokenizer is smaller than one row of the batch run.

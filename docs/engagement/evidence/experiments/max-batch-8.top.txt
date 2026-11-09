@@ -1,0 +1,34 @@
+File: gateway
+Build ID: d3ea81e9f61bdf579335ccde4c636ee97b7f6bcb
+Type: cpu
+Time: 2026-11-09 06:01:24 EST
+Duration: 20s, Total samples = 22.55s (112.74%)
+Showing nodes accounting for 10.56s, 46.83% of 22.55s total
+Dropped 688 nodes (cum <= 0.11s)
+Showing top 25 nodes out of 239
+      flat  flat%   sum%        cum   cum%
+     3.23s 14.32% 14.32%      3.23s 14.32%  internal/runtime/syscall/linux.Syscall6
+     1.48s  6.56% 20.89%      1.48s  6.56%  runtime.futex
+     1.40s  6.21% 27.10%      1.43s  6.34%  runtime.cgocall
+     0.36s  1.60% 28.69%      0.36s  1.60%  runtime.memmove
+     0.33s  1.46% 30.16%      0.33s  1.46%  github.com/consultantstanleymn/inference-gateway/internal/server.(*Service).rank.func1
+     0.31s  1.37% 31.53%      0.53s  2.35%  runtime.scanObject
+     0.29s  1.29% 32.82%      0.30s  1.33%  runtime.(*mspan).writeHeapBitsSmall
+     0.25s  1.11% 33.92%      0.25s  1.11%  runtime.memclrNoHeapPointers
+     0.25s  1.11% 35.03%      0.25s  1.11%  runtime.nextFreeFast (inline)
+     0.23s  1.02% 36.05%      0.28s  1.24%  runtime.step
+     0.23s  1.02% 37.07%      0.23s  1.02%  runtime.usleep
+     0.22s  0.98% 38.05%      1.25s  5.54%  runtime.mallocgcSmallScanNoHeader
+     0.21s  0.93% 38.98%      0.36s  1.60%  runtime.tryDeferToSpanScan
+     0.21s  0.93% 39.91%      0.39s  1.73%  sort.partition_func
+     0.20s  0.89% 40.80%      0.55s  2.44%  runtime.pcvalue
+     0.18s   0.8% 41.60%      1.37s  6.08%  runtime.newobject
+     0.18s   0.8% 42.39%      0.55s  2.44%  runtime.stealWork
+     0.15s  0.67% 43.06%      0.33s  1.46%  runtime.scanblock
+     0.14s  0.62% 43.68%      0.32s  1.42%  runtime.scanObjectsSmall
+     0.13s  0.58% 44.26%      2.31s 10.24%  runtime.mallocgc
+     0.13s  0.58% 44.83%      0.33s  1.46%  runtime.selectgo
+     0.12s  0.53% 45.37%      0.41s  1.82%  go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp/internal/semconv.HTTPServer.RequestTraceAttrs
+     0.12s  0.53% 45.90%      0.32s  1.42%  runtime.lock2
+     0.11s  0.49% 46.39%      0.27s  1.20%  sort.insertionSort_func
+     0.10s  0.44% 46.83%      0.27s  1.20%  github.com/consultantstanleymn/inference-gateway/internal/tokenize.Features

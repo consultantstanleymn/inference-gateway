@@ -1,0 +1,34 @@
+File: gateway
+Build ID: d3ea81e9f61bdf579335ccde4c636ee97b7f6bcb
+Type: cpu
+Time: 2026-11-09 05:59:16 EST
+Duration: 20s, Total samples = 22.15s (110.74%)
+Showing nodes accounting for 10.92s, 49.30% of 22.15s total
+Dropped 664 nodes (cum <= 0.11s)
+Showing top 25 nodes out of 234
+      flat  flat%   sum%        cum   cum%
+     3.72s 16.79% 16.79%      3.72s 16.79%  internal/runtime/syscall/linux.Syscall6
+     1.41s  6.37% 23.16%      1.41s  6.37%  runtime.futex
+     1.30s  5.87% 29.03%      1.30s  5.87%  runtime.cgocall
+     0.42s  1.90% 30.93%      0.42s  1.90%  github.com/consultantstanleymn/inference-gateway/internal/server.(*Service).rank.func1
+     0.34s  1.53% 32.46%      0.54s  2.44%  runtime.tryDeferToSpanScan
+     0.32s  1.44% 33.91%      0.65s  2.93%  runtime.scanObjectsSmall
+     0.29s  1.31% 35.21%      0.69s  3.12%  runtime.pcvalue
+     0.28s  1.26% 36.48%      0.28s  1.26%  runtime.memclrNoHeapPointers
+     0.27s  1.22% 37.70%      0.27s  1.22%  runtime.nextFreeFast (inline)
+     0.26s  1.17% 38.87%      0.26s  1.17%  runtime.usleep
+     0.23s  1.04% 39.91%      0.23s  1.04%  runtime.memmove
+     0.21s  0.95% 40.86%      0.27s  1.22%  runtime.step
+     0.20s   0.9% 41.76%      2.67s 12.05%  runtime.mallocgc
+     0.20s   0.9% 42.66%      0.44s  1.99%  runtime.scanObject
+     0.18s  0.81% 43.48%      7.78s 35.12%  go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp.(*middleware).serveHTTP
+     0.18s  0.81% 44.29%      0.46s  2.08%  sort.partition_func
+     0.16s  0.72% 45.01%      0.16s  0.72%  runtime.(*mspan).writeHeapBitsSmall
+     0.13s  0.59% 45.60%      0.13s  0.59%  runtime.nanotime (inline)
+     0.13s  0.59% 46.19%      0.26s  1.17%  runtime.selectgo
+     0.12s  0.54% 46.73%      0.50s  2.26%  runtime.(*stkframe).getStackMap
+     0.12s  0.54% 47.27%      0.43s  1.94%  runtime.adjustframe
+     0.12s  0.54% 47.81%      0.27s  1.22%  runtime.scanblock
+     0.11s   0.5% 48.31%      0.14s  0.63%  runtime.casgstatus
+     0.11s   0.5% 48.80%      1.28s  5.78%  runtime.newobject
+     0.11s   0.5% 49.30%      0.24s  1.08%  sort.insertionSort_func

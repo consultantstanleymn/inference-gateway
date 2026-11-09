@@ -1,0 +1,31 @@
+{
+  "factor": "workers",
+  "value": "1",
+  "settings": {
+    "workers": 1,
+    "max_batch": 16,
+    "max_wait": "5ms",
+    "cpus": 8,
+    "ort_threads": 1,
+    "queue_size": 1024,
+    "duration": "60s"
+  },
+  "summary": {
+    "rate_target": 6000,
+    "requests": 360001,
+    "throughput_rps": 5999.5,
+    "failed_rate": 0,
+    "shed_429": 0,
+    "v1": 360001,
+    "v2": 0,
+    "dropped_iterations": 1,
+    "avg_ms": 2,
+    "p50_ms": 1.93,
+    "p95_ms": 3.59,
+    "p99_ms": 4.03,
+    "max_ms": 9.33
+  },
+  "measured": {
+    "gateway_cpu_cores_used": 1.15
+  }
+}

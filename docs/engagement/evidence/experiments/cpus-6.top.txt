@@ -1,0 +1,34 @@
+File: gateway
+Build ID: d3ea81e9f61bdf579335ccde4c636ee97b7f6bcb
+Type: cpu
+Time: 2026-11-09 06:09:55 EST
+Duration: 20s, Total samples = 19.51s (97.55%)
+Showing nodes accounting for 8.94s, 45.82% of 19.51s total
+Dropped 624 nodes (cum <= 0.10s)
+Showing top 25 nodes out of 255
+      flat  flat%   sum%        cum   cum%
+     3.57s 18.30% 18.30%      3.57s 18.30%  internal/runtime/syscall/linux.Syscall6
+     0.83s  4.25% 22.55%      0.83s  4.25%  runtime.futex
+     0.51s  2.61% 25.17%      0.51s  2.61%  runtime.cgocall
+     0.36s  1.85% 27.01%      0.36s  1.85%  github.com/consultantstanleymn/inference-gateway/internal/server.(*Service).rank.func1
+     0.24s  1.23% 28.24%      0.28s  1.44%  runtime.(*mspan).writeHeapBitsSmall
+     0.24s  1.23% 29.47%      0.38s  1.95%  sort.insertionSort_func
+     0.23s  1.18% 30.65%      0.23s  1.18%  runtime.memclrNoHeapPointers
+     0.23s  1.18% 31.83%      0.23s  1.18%  runtime.memmove
+     0.23s  1.18% 33.01%      0.35s  1.79%  runtime.scanObjectsSmall
+     0.22s  1.13% 34.14%      0.33s  1.69%  runtime.scanblock
+     0.21s  1.08% 35.21%      1.20s  6.15%  runtime.mallocgcSmallScanNoHeader
+     0.20s  1.03% 36.24%      0.20s  1.03%  runtime.usleep
+     0.18s  0.92% 37.16%      0.18s  0.92%  [libc.so.6]
+     0.18s  0.92% 38.08%      0.28s  1.44%  runtime.tryDeferToSpanScan
+     0.18s  0.92% 39.01%      0.43s  2.20%  sort.partition_func
+     0.17s  0.87% 39.88%      1.23s  6.30%  runtime.newobject
+     0.17s  0.87% 40.75%      0.17s  0.87%  runtime.nextFreeFast (inline)
+     0.15s  0.77% 41.52%      0.21s  1.08%  runtime.step
+     0.14s  0.72% 42.23%      0.18s  0.92%  runtime.typePointers.next
+     0.13s  0.67% 42.90%      7.18s 36.80%  go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp.(*middleware).serveHTTP
+     0.12s  0.62% 43.52%      0.12s  0.62%  aeshashbody
+     0.12s  0.62% 44.13%      0.12s  0.62%  internal/sync.(*Mutex).Lock (inline)
+     0.12s  0.62% 44.75%      0.40s  2.05%  runtime.scanObject
+     0.11s  0.56% 45.31%      0.40s  2.05%  runtime.pcvalue
+     0.10s  0.51% 45.82%      0.26s  1.33%  internal/poll.runtime_pollSetDeadline

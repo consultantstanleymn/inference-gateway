@@ -1,0 +1,34 @@
+File: gateway
+Build ID: d3ea81e9f61bdf579335ccde4c636ee97b7f6bcb
+Type: cpu
+Time: 2026-11-09 05:57:09 EST
+Duration: 20s, Total samples = 20.89s (104.45%)
+Showing nodes accounting for 9.70s, 46.43% of 20.89s total
+Dropped 641 nodes (cum <= 0.10s)
+Showing top 25 nodes out of 261
+      flat  flat%   sum%        cum   cum%
+     3.33s 15.94% 15.94%      3.33s 15.94%  internal/runtime/syscall/linux.Syscall6
+     1.39s  6.65% 22.59%      1.39s  6.65%  runtime.futex
+     0.74s  3.54% 26.14%      0.74s  3.54%  runtime.cgocall
+     0.34s  1.63% 27.76%      0.34s  1.63%  github.com/consultantstanleymn/inference-gateway/internal/server.(*Service).rank.func1
+     0.34s  1.63% 29.39%      0.34s  1.63%  runtime.nextFreeFast (inline)
+     0.30s  1.44% 30.83%      0.30s  1.44%  runtime.memmove
+     0.27s  1.29% 32.12%      0.28s  1.34%  runtime.(*mspan).writeHeapBitsSmall
+     0.23s  1.10% 33.22%      0.23s  1.10%  runtime.usleep
+     0.21s  1.01% 34.23%      0.49s  2.35%  runtime.pcvalue
+     0.21s  1.01% 35.23%      0.43s  2.06%  runtime.scanObjectsSmall
+     0.20s  0.96% 36.19%      0.32s  1.53%  sort.insertionSort_func
+     0.19s  0.91% 37.10%      0.19s  0.91%  runtime.memclrNoHeapPointers
+     0.19s  0.91% 38.01%      1.19s  5.70%  runtime.newobject
+     0.19s  0.91% 38.92%      0.41s  1.96%  runtime.scanObject
+     0.19s  0.91% 39.83%      0.38s  1.82%  runtime.tryDeferToSpanScan
+     0.18s  0.86% 40.69%      0.23s  1.10%  runtime.step
+     0.16s  0.77% 41.46%      0.37s  1.77%  runtime.lock2
+     0.16s  0.77% 42.22%      0.28s  1.34%  runtime.scanblock
+     0.14s  0.67% 42.89%      0.14s  0.67%  runtime.osyield
+     0.13s  0.62% 43.51%      0.22s  1.05%  github.com/consultantstanleymn/inference-gateway/internal/tokenize.Features
+     0.13s  0.62% 44.14%      0.13s  0.62%  time.runtimeNow
+     0.12s  0.57% 44.71%      0.35s  1.68%  runtime.adjustframe
+     0.12s  0.57% 45.28%      1.11s  5.31%  runtime.mallocgcSmallScanNoHeader
+     0.12s  0.57% 45.86%      0.33s  1.58%  sort.partition_func
+     0.12s  0.57% 46.43%      0.24s  1.15%  time.Time.appendFormat

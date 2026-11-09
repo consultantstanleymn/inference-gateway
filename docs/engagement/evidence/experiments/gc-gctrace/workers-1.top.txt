@@ -1,0 +1,54 @@
+gc 1 @0.005s 3%: 0.060+1.2+0.028 ms clock, 0.48+0.10/1.3/0+0.23 ms cpu, 3->4->1 MB, 4 MB goal, 0 MB stacks, 0 MB globals, 8 P
+gc 2 @0.009s 4%: 0.071+1.4+0.061 ms clock, 0.56+0.39/1.2/0+0.49 ms cpu, 3->4->1 MB, 4 MB goal, 0 MB stacks, 0 MB globals, 8 P
+gc 3 @0.014s 4%: 0.067+1.2+0.042 ms clock, 0.53+0.87/0.93/0+0.34 ms cpu, 3->3->1 MB, 4 MB goal, 0 MB stacks, 0 MB globals, 8 P
+gc 4 @0.016s 8%: 0.059+1.2+0.016 ms clock, 0.47+3.1/2.2/0.001+0.13 ms cpu, 3->3->1 MB, 4 MB goal, 0 MB stacks, 0 MB globals, 8 P
+gc 5 @0.019s 10%: 0.11+1.0+0.018 ms clock, 0.91+2.3/1.5/0.17+0.14 ms cpu, 3->3->2 MB, 4 MB goal, 0 MB stacks, 0 MB globals, 8 P
+gc 6 @0.022s 10%: 0.88+2.4+0.077 ms clock, 7.1+1.7/2.8/0+0.62 ms cpu, 4->4->2 MB, 4 MB goal, 0 MB stacks, 0 MB globals, 8 P
+gc 7 @0.032s 9%: 0.14+1.4+0.027 ms clock, 1.1+1.1/2.3/1.3+0.22 ms cpu, 5->6->4 MB, 5 MB goal, 0 MB stacks, 0 MB globals, 8 P
+gc 8 @0.035s 10%: 0.12+1.9+0.022 ms clock, 1.0+2.0/2.7/0.002+0.18 ms cpu, 7->8->4 MB, 8 MB goal, 0 MB stacks, 0 MB globals, 8 P
+gc 9 @0.040s 10%: 0.045+1.3+0.025 ms clock, 0.36+0.086/1.7/2.5+0.20 ms cpu, 8->9->4 MB, 9 MB goal, 0 MB stacks, 0 MB globals, 8 P
+gc 10 @0.049s 8%: 0.022+1.1+0.014 ms clock, 0.17+0.080/1.6/3.0+0.11 ms cpu, 7->7->3 MB, 8 MB goal, 0 MB stacks, 0 MB globals, 8 P
+gc 11 @0.054s 8%: 0.064+1.5+0.10 ms clock, 0.51+1.0/2.5/1.7+0.86 ms cpu, 6->8->4 MB, 7 MB goal, 0 MB stacks, 0 MB globals, 8 P
+gc 12 @0.057s 9%: 0.099+1.9+0.043 ms clock, 0.79+1.7/2.9/0+0.35 ms cpu, 8->9->4 MB, 9 MB goal, 0 MB stacks, 0 MB globals, 8 P
+gc 13 @0.061s 10%: 0.18+1.9+0.004 ms clock, 1.4+1.7/3.0/0.085+0.038 ms cpu, 8->10->5 MB, 10 MB goal, 0 MB stacks, 0 MB globals, 8 P
+gc 14 @0.065s 10%: 0.098+2.0+0.084 ms clock, 0.78+0.062/2.9/1.8+0.67 ms cpu, 9->11->5 MB, 10 MB goal, 0 MB stacks, 0 MB globals, 8 P
+gc 15 @0.069s 10%: 0.13+2.5+0.10 ms clock, 1.0+1.2/4.0/0+0.86 ms cpu, 10->12->6 MB, 11 MB goal, 0 MB stacks, 0 MB globals, 8 P
+gc 16 @0.074s 11%: 0.11+2.2+0.11 ms clock, 0.94+1.2/3.6/0+0.92 ms cpu, 10->12->5 MB, 12 MB goal, 0 MB stacks, 0 MB globals, 8 P
+gc 17 @0.083s 10%: 0.020+1.1+0.004 ms clock, 0.16+0/1.6/2.7+0.037 ms cpu, 9->9->3 MB, 11 MB goal, 0 MB stacks, 0 MB globals, 8 P
+gc 1 @0.006s 2%: 0.039+1.1+0.022 ms clock, 0.31+0.15/1.4/0.63+0.18 ms cpu, 4->4->2 MB, 4 MB goal, 0 MB stacks, 0 MB globals, 8 P
+gc 2 @0.010s 3%: 0.014+1.1+0.003 ms clock, 0.11+0/1.3/1.1+0.029 ms cpu, 5->5->2 MB, 5 MB goal, 0 MB stacks, 0 MB globals, 8 P
+gc 3 @0.017s 3%: 0.018+0.70+0.003 ms clock, 0.15+0.35/0.61/0.76+0.029 ms cpu, 5->5->1 MB, 5 MB goal, 0 MB stacks, 0 MB globals, 8 P
+File: gateway
+Build ID: d3ea81e9f61bdf579335ccde4c636ee97b7f6bcb
+Type: cpu
+Time: 2026-11-09 06:11:00 EST
+Duration: 20s, Total samples = 20.96s (104.80%)
+Showing nodes accounting for 9.55s, 45.56% of 20.96s total
+Dropped 655 nodes (cum <= 0.10s)
+Showing top 25 nodes out of 252
+      flat  flat%   sum%        cum   cum%
+     3.47s 16.56% 16.56%      3.47s 16.56%  internal/runtime/syscall/linux.Syscall6
+     1.29s  6.15% 22.71%      1.29s  6.15%  runtime.futex
+     0.59s  2.81% 25.52%      0.59s  2.81%  runtime.cgocall
+     0.29s  1.38% 26.91%      0.29s  1.38%  github.com/consultantstanleymn/inference-gateway/internal/server.(*Service).rank.func1
+     0.29s  1.38% 28.29%      0.29s  1.38%  runtime.nextFreeFast (inline)
+     0.29s  1.38% 29.68%      0.47s  2.24%  runtime.tryDeferToSpanScan
+     0.26s  1.24% 30.92%      0.26s  1.24%  runtime.memmove
+     0.24s  1.15% 32.06%      0.39s  1.86%  sort.partition_func
+     0.23s  1.10% 33.16%      0.23s  1.10%  runtime.usleep
+     0.22s  1.05% 34.21%      0.42s  2.00%  runtime.scanObjectsSmall
+     0.21s  1.00% 35.21%      0.45s  2.15%  runtime.pcvalue
+     0.21s  1.00% 36.21%      0.22s  1.05%  runtime.typePointers.next
+     0.20s  0.95% 37.17%      0.20s  0.95%  runtime.memclrNoHeapPointers
+     0.20s  0.95% 38.12%      0.37s  1.77%  sort.insertionSort_func
+     0.19s  0.91% 39.03%      0.21s  1.00%  runtime.(*mspan).writeHeapBitsSmall
+     0.17s  0.81% 39.84%      0.17s  0.81%  aeshashbody
+     0.16s  0.76% 40.60%      0.53s  2.53%  runtime.scanObject
+     0.15s  0.72% 41.32%      0.28s  1.34%  runtime.scanblock
+     0.14s  0.67% 41.98%      0.14s  0.67%  [libc.so.6]
+     0.14s  0.67% 42.65%      1.12s  5.34%  runtime.newobject
+     0.13s  0.62% 43.27%      1.04s  4.96%  runtime.mallocgcSmallScanNoHeader
+     0.13s  0.62% 43.89%      0.17s  0.81%  runtime.step
+     0.12s  0.57% 44.47%      2.15s 10.26%  runtime.mallocgc
+     0.12s  0.57% 45.04%      0.12s  0.57%  time.runtimeNow
+     0.11s  0.52% 45.56%      7.22s 34.45%  go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp.(*middleware).serveHTTP

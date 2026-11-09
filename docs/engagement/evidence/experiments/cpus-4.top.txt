@@ -1,0 +1,34 @@
+File: gateway
+Build ID: d3ea81e9f61bdf579335ccde4c636ee97b7f6bcb
+Type: cpu
+Time: 2026-11-09 06:08:51 EST
+Duration: 20s, Total samples = 17.23s (86.14%)
+Showing nodes accounting for 7.92s, 45.97% of 17.23s total
+Dropped 592 nodes (cum <= 0.09s)
+Showing top 25 nodes out of 255
+      flat  flat%   sum%        cum   cum%
+     3.21s 18.63% 18.63%      3.21s 18.63%  internal/runtime/syscall/linux.Syscall6
+     0.76s  4.41% 23.04%      0.76s  4.41%  runtime.futex
+     0.56s  3.25% 26.29%      0.56s  3.25%  runtime.cgocall
+     0.26s  1.51% 27.80%      0.39s  2.26%  sort.partition_func
+     0.22s  1.28% 29.08%      0.37s  2.15%  runtime.tryDeferToSpanScan
+     0.21s  1.22% 30.30%      0.21s  1.22%  github.com/consultantstanleymn/inference-gateway/internal/server.(*Service).rank.func1
+     0.20s  1.16% 31.46%      0.20s  1.16%  [libc.so.6]
+     0.19s  1.10% 32.56%      0.19s  1.10%  runtime.(*mspan).writeHeapBitsSmall
+     0.18s  1.04% 33.60%      0.29s  1.68%  sort.insertionSort_func
+     0.17s  0.99% 34.59%      0.17s  0.99%  runtime.memmove
+     0.17s  0.99% 35.58%      0.17s  0.99%  runtime.nextFreeFast (inline)
+     0.16s  0.93% 36.51%      0.16s  0.93%  runtime.memclrNoHeapPointers
+     0.15s  0.87% 37.38%      1.82s 10.56%  runtime.mallocgc
+     0.15s  0.87% 38.25%      1.09s  6.33%  runtime.newobject
+     0.15s  0.87% 39.12%      0.38s  2.21%  runtime.scanObject
+     0.14s  0.81% 39.93%      6.29s 36.51%  go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp.(*middleware).serveHTTP
+     0.13s  0.75% 40.68%      0.17s  0.99%  internal/runtime/maps.(*Map).getWithoutKeySmallFastStr
+     0.13s  0.75% 41.44%      0.87s  5.05%  runtime.mallocgcSmallScanNoHeader
+     0.13s  0.75% 42.19%      0.29s  1.68%  runtime.pcvalue
+     0.12s   0.7% 42.89%      0.13s  0.75%  runtime.typePointers.next
+     0.11s  0.64% 43.53%      0.11s  0.64%  internal/runtime/atomic.(*Uint32).CompareAndSwap (inline)
+     0.11s  0.64% 44.17%      0.33s  1.92%  runtime.scanObjectsSmall
+     0.11s  0.64% 44.81%      0.11s  0.64%  runtime.usleep
+     0.11s  0.64% 45.44%      0.11s  0.64%  time.runtimeNow
+     0.09s  0.52% 45.97%      0.20s  1.16%  github.com/felixge/httpsnoop.Wrap

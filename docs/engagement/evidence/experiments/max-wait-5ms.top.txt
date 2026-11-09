@@ -1,0 +1,34 @@
+File: gateway
+Build ID: d3ea81e9f61bdf579335ccde4c636ee97b7f6bcb
+Type: cpu
+Time: 2026-11-09 06:05:39 EST
+Duration: 20s, Total samples = 20.91s (104.55%)
+Showing nodes accounting for 10s, 47.82% of 20.91s total
+Dropped 659 nodes (cum <= 0.10s)
+Showing top 25 nodes out of 241
+      flat  flat%   sum%        cum   cum%
+     3.65s 17.46% 17.46%      3.65s 17.46%  internal/runtime/syscall/linux.Syscall6
+     1.44s  6.89% 24.34%      1.44s  6.89%  runtime.futex
+     0.58s  2.77% 27.12%      0.58s  2.77%  runtime.cgocall
+     0.32s  1.53% 28.65%      0.45s  2.15%  runtime.tryDeferToSpanScan
+     0.29s  1.39% 30.03%      0.33s  1.58%  runtime.typePointers.next
+     0.27s  1.29% 31.32%      0.73s  3.49%  runtime.scanObject
+     0.27s  1.29% 32.62%      0.42s  2.01%  sort.partition_func
+     0.25s  1.20% 33.81%      0.25s  1.20%  github.com/consultantstanleymn/inference-gateway/internal/server.(*Service).rank.func1
+     0.25s  1.20% 35.01%      0.25s  1.20%  runtime.memmove
+     0.25s  1.20% 36.20%      0.25s  1.20%  runtime.nextFreeFast (inline)
+     0.23s  1.10% 37.30%      0.47s  2.25%  runtime.scanObjectsSmall
+     0.20s  0.96% 38.26%      0.21s  1.00%  runtime.(*mspan).writeHeapBitsSmall
+     0.20s  0.96% 39.22%      2.67s 12.77%  runtime.findRunnable
+     0.18s  0.86% 40.08%      2.11s 10.09%  runtime.mallocgc
+     0.18s  0.86% 40.94%      0.18s  0.86%  runtime.memclrNoHeapPointers
+     0.18s  0.86% 41.80%      0.34s  1.63%  runtime.pcvalue
+     0.18s  0.86% 42.66%      0.44s  2.10%  runtime.stealWork
+     0.15s  0.72% 43.38%      7.38s 35.29%  go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp.(*middleware).serveHTTP
+     0.14s  0.67% 44.05%      0.14s  0.67%  indexbytebody
+     0.14s  0.67% 44.72%      0.15s  0.72%  runtime.findObject
+     0.14s  0.67% 45.38%      1.13s  5.40%  runtime.newobject
+     0.14s  0.67% 46.05%      0.14s  0.67%  runtime.usleep
+     0.13s  0.62% 46.68%      0.24s  1.15%  github.com/consultantstanleymn/inference-gateway/internal/tokenize.Features
+     0.12s  0.57% 47.25%      0.38s  1.82%  runtime.adjustframe
+     0.12s  0.57% 47.82%      0.28s  1.34%  runtime.selectgo

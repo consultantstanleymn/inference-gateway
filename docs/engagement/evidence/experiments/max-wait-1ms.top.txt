@@ -1,0 +1,34 @@
+File: gateway
+Build ID: d3ea81e9f61bdf579335ccde4c636ee97b7f6bcb
+Type: cpu
+Time: 2026-11-09 06:04:36 EST
+Duration: 20s, Total samples = 22.26s (111.30%)
+Showing nodes accounting for 9.73s, 43.71% of 22.26s total
+Dropped 708 nodes (cum <= 0.11s)
+Showing top 25 nodes out of 244
+      flat  flat%   sum%        cum   cum%
+     3.69s 16.58% 16.58%      3.69s 16.58%  internal/runtime/syscall/linux.Syscall6
+     1.01s  4.54% 21.11%      1.01s  4.54%  runtime.futex
+     0.89s  4.00% 25.11%      0.91s  4.09%  runtime.cgocall
+     0.32s  1.44% 26.55%      0.32s  1.44%  github.com/consultantstanleymn/inference-gateway/internal/server.(*Service).rank.func1
+     0.30s  1.35% 27.90%      0.31s  1.39%  runtime.(*mspan).writeHeapBitsSmall
+     0.29s  1.30% 29.20%      0.48s  2.16%  sort.partition_func
+     0.27s  1.21% 30.41%      0.27s  1.21%  runtime.nextFreeFast (inline)
+     0.21s  0.94% 31.36%      0.21s  0.94%  runtime.memclrNoHeapPointers
+     0.20s   0.9% 32.26%      0.20s   0.9%  runtime.memmove
+     0.20s   0.9% 33.15%      0.45s  2.02%  runtime.pcvalue
+     0.19s  0.85% 34.01%      0.33s  1.48%  runtime.lock2
+     0.19s  0.85% 34.86%      0.52s  2.34%  runtime.scanObject
+     0.19s  0.85% 35.71%      0.19s  0.85%  runtime.usleep
+     0.18s  0.81% 36.52%      0.37s  1.66%  runtime.scanObjectsSmall
+     0.17s  0.76% 37.29%      8.12s 36.48%  go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp.(*middleware).serveHTTP
+     0.17s  0.76% 38.05%      0.21s  0.94%  runtime.unlock2
+     0.16s  0.72% 38.77%      0.16s  0.72%  [libc.so.6]
+     0.16s  0.72% 39.49%      1.30s  5.84%  runtime.newobject
+     0.16s  0.72% 40.21%      0.39s  1.75%  runtime.tryDeferToSpanScan
+     0.14s  0.63% 40.84%      0.29s  1.30%  github.com/consultantstanleymn/inference-gateway/internal/tokenize.Features
+     0.14s  0.63% 41.46%      0.17s  0.76%  runtime.typePointers.next
+     0.13s  0.58% 42.05%      0.13s  0.58%  aeshashbody
+     0.13s  0.58% 42.63%      2.40s 10.78%  runtime.mallocgc
+     0.12s  0.54% 43.17%      0.43s  1.93%  runtime.adjustframe
+     0.12s  0.54% 43.71%      0.32s  1.44%  runtime.scanblock
