@@ -1,0 +1,23 @@
+# Evidence: Grafana golden-signals dashboard screenshot from the compose stack
+label: VERIFIED LOCALLY
+date: 2026-11-09 12:33 UTC
+code commit: a42aa02de0f7436867ee18316eb6079345b0f963
+working tree clean at run time: yes
+machine: MacBook Pro (mid 2015), 8 logical CPUs, 16 GB RAM, Fedora 44, podman 5.8.7 (measured on one laptop)
+command: podman compose -f deploy/compose/compose.yaml up -d; k6 run -e URL=http://127.0.0.1:25480/v1/classify -e RATE=200 -e DURATION=180s loadtest/http.js (in the background); after 100 s run the Playwright script below with node; then podman compose -f deploy/compose/compose.yaml down. All under flock heavy.lock nice -n 10.
+notes: One description: the eight panels of dashboard inf-golden (latency p50, p95, p99; p95 by model version; request rate by outcome; errors and sheds; queue depth; queue wait p95; batch size; CPU cores) during a 200 rps k6 load. The browser clock shows local time (UTC-5), so 07:29 to 07:33 is 12:29 to 12:33 UTC. The error and timeout series is absent because there were none. Why the earlier attempts were blank: the Playwright headless shell drew only the time picker. The full Chromium build (channel chromium, SwiftShader GL) draws the panels. Load average at start 1.09, at end 0.67. The k6 run had 0 failed requests. The panel p95 (about 9.6 ms) is higher than the k6 p95 (6.71 ms): histogram_quantile interpolates inside the 5 to 10 ms bucket, and most requests wait about 5 ms in the queue at this low rate, so latency and queue wait fall in the same bucket and show almost the same p95. Finer buckets between 5 and 10 ms would fix this.
+---
+Playwright 1.64.1 script (node <script> <out.png>):
+const { chromium } = require('playwright');
+const b = await chromium.launch({ headless: true, channel: 'chromium', args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
+const auth = 'Basic ' + Buffer.from('admin:local-test-only-admin').toString('base64');
+const ctx = await b.newContext({ viewport: { width: 1600, height: 1000 }, extraHTTPHeaders: { Authorization: auth } });
+const pg = await ctx.newPage();
+await pg.goto('http://127.0.0.1:25430/d/inf-golden/x?orgId=1&kiosk&from=now-5m&to=now', { waitUntil: 'networkidle' });
+await pg.waitForTimeout(8000);   // then scroll down and up once, 3 s each
+await pg.screenshot({ path: out, fullPage: true });
+
+Result: 8 canvases, each 762 x 214 px, all visible. Legends seen in the page: p50 http, p95 http, p99 http, p95 v1, ok, shed, queue depth, queue wait p95, batch p50, batch p95, cores.
+
+k6 summary of the load run:
+K6SUMMARY {"rate_target":200,"requests":36000,"throughput_rps":200,"failed_rate":0,"shed_429":0,"v1":36000,"v2":0,"dropped_iterations":0,"avg_ms":4.41,"p50_ms":5.75,"p95_ms":6.71,"p99_ms":6.87,"max_ms":16.51}

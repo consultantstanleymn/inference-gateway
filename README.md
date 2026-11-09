@@ -33,7 +33,7 @@ Every claim below was run on one laptop (MacBook Pro mid 2015, 8 logical CPUs; m
 
 | Claim | Command | Evidence | Date |
 |---|---|---|---|
-| Golden-signals dashboard queries return data and one request trace has the spans `POST /v1/classify`, `tokenize`, `queue.wait`, `batch.run` (no screenshot) | `scripts/diag-run.sh` | `docs/engagement/evidence/diagnostics-stack-run.txt`, `docs/engagement/evidence/jaeger-request-trace.json` | 2026-11-09 |
+| Golden-signals dashboard queries return data (the error query had no errors to count), a Grafana screenshot shows all eight panels under load, and one request trace has the spans `POST /v1/classify`, `tokenize`, `queue.wait`, `batch.run` | `scripts/diag-run.sh`; screenshot command in the `.txt` file | `docs/engagement/evidence/diagnostics-stack-run.txt`, `docs/engagement/evidence/grafana-golden-signals.png` and `.txt`, `docs/engagement/evidence/jaeger-request-trace.json` | 2026-11-09 |
 | Label sets stay bounded; latency has a `model_version` label; exemplars carry trace ids | `go test -race ./internal/...` | `docs/engagement/TELEMETRY.md` | 2026-11-09 |
 | Locust against k6: 3.8 percent below k6 at 2000 rps, 20.3 percent below at 4000 rps (not within the 10 percent margin at 4000) | `scripts/locust-vs-k6.sh` | `docs/engagement/evidence/locust-vs-k6.txt` | 2026-11-09 |
 | One-factor experiments with pprof at 6000 rps; the gateway used about 1.2 cores; GC and the tokenizer are ruled out. 6000 rps is below saturation: the runs show where CPU goes and how latency changes, not the maximum throughput | `scripts/experiment.sh` | `docs/engagement/evidence/experiments/README.md` | 2026-11-09 |
