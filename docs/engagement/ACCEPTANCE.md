@@ -1,0 +1,19 @@
+Fictional customer. Any match with a real company is not intended.
+
+# Acceptance criteria: CommunityCU intent gateway
+
+Status words: not started, met locally, authored, not run, not met.
+
+| ID | Criterion | Measurable check | Proof command | Evidence file | Status |
+|---|---|---|---|---|---|
+| I-1 | Prometheus, Grafana and Jaeger run in one compose file. One dashboard shows the golden signals: latency p50, p95, p99; traffic; errors and sheds; saturation (queue depth, CPU). | Dashboard check passes and a screenshot is stored. | `podman compose -f deploy/compose/compose.yaml up -d` then open the dashboard | `docs/engagement/evidence/golden-signals-dashboard.png` | not started |
+| I-2 | Telemetry repair: one real gap is found and fixed (latency not split by model version; no exemplars linking latency to traces), with a written cardinality budget and a test that label sets stay bounded. | `cardinality_test.go` passes. | `go test -race -count=1 ./internal/telemetry/...` | `docs/engagement/TELEMETRY.md` | not started |
+| I-3 | One request path is traced end to end in Jaeger (HTTP, tokenize, queue wait, batch run). | A trace JSON with the span names is stored. | `curl -s "$JAEGER_QUERY/api/traces/$TRACE_ID"` | `docs/engagement/evidence/jaeger-request-trace.json` | not started |
+| I-4 | A Locust profile (seeded text mix, fixed spawn rate) runs next to the k6 scripts and gives the same throughput band within a stated margin. | A comparison table is stored. | `locust -f loadtest/locustfile.py --headless -u 50 -r 5 -t 5m` | `docs/engagement/LOADTEST.md` | not started |
+| I-5 | Bottleneck attribution: one factor changes at a time (workers, `max-batch`, `max-wait`, CPU limit). pprof shows where CPU time goes. At least one other cause is ruled out with data (GC or tokenizer). | An experiment table and pprof top output are stored. | `go tool pprof -top <profile.pb.gz>` | `docs/engagement/evidence/experiments/` | not started |
+| I-6 | Capacity model: throughput per core from the data, Little's law for queue size, a utilization target, and a 10x estimate with named assumptions and a range. | The script output equals the doc numbers. | `python3 scripts/capacity_model.py` | `docs/engagement/CAPACITY.md` | not started |
+| I-7 | A written correction of an unreviewed capacity draft. Each wrong claim gets the correct number and the evidence file. | Every claim has a verdict. | `grep -c 'verdict' docs/engagement/capacity-review/CORRECTION.md` | `docs/engagement/capacity-review/CORRECTION.md` | not started |
+| I-8 | Canary with automatic rollback: v2 gets 10 percent of traffic; if error rate or p95 crosses the gate, the controller sets v2 weight to 0. Evidence for one pass and one forced failure. | Two transcripts are stored. | `cat docs/engagement/evidence/canary-pass.txt docs/engagement/evidence/canary-fail-rollback.txt` | `docs/engagement/evidence/canary-pass.txt`, `docs/engagement/evidence/canary-fail-rollback.txt` | not started |
+| I-9 | One latency SLO with an alert rule and a promtool test. | promtool exits 0. | `promtool test rules deploy/compose/prometheus/rules/slo.test.yml` | `deploy/compose/prometheus/rules/slo.test.yml` | not started |
+| I-10 | ADR: GPU serving and fine-tuning at decision level. | The file exists. | `test -f docs/engagement/adr/0003-gpu-and-fine-tuning.md` | `docs/engagement/adr/0003-gpu-and-fine-tuning.md` | not started |
+| I-11 | SBOM for the image, image signature step in CI (authored), release manifest with model file hashes. | The manifest and SBOM exist. | `test -f release/manifest.json` | `release/manifest.json` | not started |
