@@ -41,4 +41,4 @@ of which gateway_ series: 57 and Go or process series: 44 (counted from the scra
 }
 
 Note: the expression for errors, timeouts and closed requests returned 0 series because the run had none. That is the expected result.
-Screenshot: not part of this file. A first screenshot of the dashboard was blank and was deleted. See the README status.
+Screenshot: none. Two attempts with a headless browser gave a blank page (only the time picker) and were deleted. The cause is not known. Grafana loaded the dashboard through its API, and every query returned data.
