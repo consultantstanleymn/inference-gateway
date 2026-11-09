@@ -36,21 +36,21 @@ Every claim below was run on one laptop (MacBook Pro mid 2015, 8 logical CPUs; m
 | Golden-signals dashboard queries return data and one request trace has the spans `POST /v1/classify`, `tokenize`, `queue.wait`, `batch.run` (no screenshot) | `scripts/diag-run.sh` | `docs/engagement/evidence/diagnostics-stack-run.txt`, `docs/engagement/evidence/jaeger-request-trace.json` | 2026-11-09 |
 | Label sets stay bounded; latency has a `model_version` label; exemplars carry trace ids | `go test -race ./internal/...` | `docs/engagement/TELEMETRY.md` | 2026-11-09 |
 | Locust against k6: 3.8 percent below k6 at 2000 rps, 20.3 percent below at 4000 rps (not within the 10 percent margin at 4000) | `scripts/locust-vs-k6.sh` | `docs/engagement/evidence/locust-vs-k6.txt` | 2026-11-09 |
-| One-factor experiments with pprof at 6000 rps; the gateway used about 1.2 cores; GC and the tokenizer are ruled out | `scripts/experiment.sh` | `docs/engagement/evidence/experiments/README.md` | 2026-11-09 |
-| Capacity model: median 5214.3 rps per core, 10x launch peak 5208.3 rps, 2 to 3 replicas of 2 cores (an estimate from one laptop) | `python3 scripts/capacity_model.py --check-doc docs/engagement/CAPACITY.md` | `docs/engagement/evidence/capacity-model-output.txt` | 2026-11-09 |
+| One-factor experiments with pprof at 6000 rps; the gateway used about 1.2 cores; GC and the tokenizer are ruled out. 6000 rps is below saturation: the runs show where CPU goes and how latency changes, not the maximum throughput | `scripts/experiment.sh` | `docs/engagement/evidence/experiments/README.md` | 2026-11-09 |
+| Capacity model: median 5214.3 rps per core of gateway CPU at 6000 rps (below saturation, so a cost per request, not a maximum), 10x launch peak 5208.3 rps, 2 to 3 replicas of 2 cores. The replica range is an estimate with named assumptions in `docs/engagement/CAPACITY.md` (same text mix, same model, CPU class not much slower, load generator not the limit; the high case assumes half the work per core) | `python3 scripts/capacity_model.py --check-doc docs/engagement/CAPACITY.md` | `docs/engagement/evidence/capacity-model-output.txt` | 2026-11-09 |
 | Canary with automatic rollback: a healthy canary was promoted through four steps; a canary with 30 percent errors was rolled back at the first step | `scripts/canary-run.sh pass`, `scripts/canary-run.sh fail` | `docs/engagement/evidence/canary-pass.txt`, `docs/engagement/evidence/canary-fail-rollback.txt` | 2026-11-09 |
 | Latency SLO alerts behave as written | `promtool test rules` (container image) | `docs/engagement/evidence/promtool-latency-slo.txt` | 2026-11-09 |
 | Image SBOM and a release manifest with model and runtime hashes | `scripts/release_manifest.py` | `docs/engagement/evidence/sbom-image.cdx.json`, `release/manifest.json` | 2026-11-09 |
 | gitleaks, gosec, govulncheck, pip-audit and Trivy ran locally | see the file | `docs/engagement/evidence/security-gate-local.txt` | 2026-11-09 |
+| `podman compose config` and `docker compose config` both pass for the diagnostics stack (Docker Compose 5.6.0 from the Fedora package, not installed system-wide) | see the file | `docs/engagement/evidence/compose-config.txt` | 2026-11-09 |
 
 ## Authored, not run
 
 | File | What it would do | Why it did not run |
 |---|---|---|
-| `.github/workflows/release.yml` | Build, push to GHCR, sign the image with cosign, attach the SBOM | Authored, not run: written and syntax-checked with actionlint 1.7.12. Not executed against GitHub Actions. Reason: needs GitHub Actions |
-| `.github/workflows/security.yml` (CodeQL job and the others) and the new steps in `ci.yml` | Run the security gate and the rules checks in GitHub Actions | Authored, not run: checked with actionlint. The first `security` run on GitHub failed and was not examined. Reason: needs GitHub Actions |
+| `.github/workflows/release.yml` | Build, push to GHCR, sign the image with cosign, attach the SBOM, write the release manifest (model and runtime hashes) and sign it with `cosign sign-blob` | Authored, not run: written and syntax-checked with actionlint 1.7.12. Not executed against GitHub Actions. Reason: needs GitHub Actions |
+| `.github/workflows/security.yml` (CodeQL job and the others) and the new steps in `ci.yml` | Run the security gate and the rules checks in GitHub Actions | Authored, not run: checked with actionlint. Each `run:` command was run locally once. Past GitHub results are in "Verification status" below. Reason: needs GitHub Actions |
 | `docs/engagement/adr/0003-gpu-and-fine-tuning.md` | A decision about GPU serving and fine-tuning | Decision level only. No GPU work was built or measured |
-| `docker compose` check of `deploy/compose/compose.yaml` | Validate the file with the Docker plugin | Authored, not run: `podman compose config` passed. Reason: the Docker compose plugin is not installed here |
 
 ## Quick start
 
@@ -93,18 +93,27 @@ Run locally on 2026-11-07 (Fedora 44, 2015 MacBook Pro, CPU only): training, exp
 
 NOT run yet:
 
-- **GitHub Actions: new jobs.** Past results on `main`, read once from the GitHub API on 2026-11-09 (this read did not start or watch a run):
+- **GitHub Actions: new jobs.** Past results on `main`, read from the GitHub API on 2026-11-09 at about 12:15 UTC (read only; this did not start or watch a run):
 
   | Workflow | Run id | Head commit | Conclusion | Date |
   |---|---|---|---|---|
   | ci | 42445773905 | 0cf6579 | success | 2026-11-08 |
   | ci | 42589487400 | 00ab08a | success | 2026-11-09 |
-  | security | 42589487570 | 00ab08a | failure (not examined) | 2026-11-09 |
+  | security | 42589487570 | 00ab08a | failure (jobs `deps` and `image`) | 2026-11-09 |
+  | ci | 42611746329 | b673686 | failure (`TestParityWithPython`, see below) | 2026-11-09 |
+  | security | 42611746538 | b673686 | failure (jobs `deps` and `image`) | 2026-11-09 |
+  | ci | 42612800931 | 7f6acdb | success | 2026-11-09 |
+  | security | 42612800796 | 7f6acdb | failure (jobs `deps` and `image`) | 2026-11-09 |
+  | security | 42614301665 | a42aa02 | failure (jobs `deps` and `image`) | 2026-11-09 |
 
-  The four `ci` jobs were green (checked by the owner on 2026-11-08). The `ci` run on 2026-11-09 only had documentation, the security files and a dependency bump on top. Jobs added after these runs have not been checked: the `rules` job, the SBOM step, the canary test step, `release.yml`, and the fixes to `security.yml`. The first `security` run failed and the reason has not been looked at. Every action version in the new files is unverified.
+  The four `ci` jobs were green (checked by the owner on 2026-11-08). In every `security` run the jobs `codeql`, `secrets`, `sast`, `sbom` and `exceptions` passed. Two jobs failed, for two causes found in the failed-step logs:
+  1. `deps`: `actions/setup-go` read `go 1.26.0` from `go.mod` and installed Go 1.26.0. `govulncheck` then reported standard library issues that later 1.26 patches fix. The local run used Go 1.26.10 and found none. Fix: the security jobs now ask for the latest 1.26 patch (`go-version: "1.26.x"`, `check-latest: true`).
+  2. `image`: Trivy found `libssl3` CVE-2026-84782 in the distroless base. This finding is in `security/exceptions.json`, but the job did not give the exceptions to Trivy. Fix: the job now checks the exceptions file, writes the Trivy ids to an ignore file and passes `--ignorefile`. The Trivy install script and binary are pinned to v0.69.3.
+
+  The `security` run after these fixes has not been checked here. One `ci` run failed in `TestParityWithPython`: on that runner the Go and Python probabilities differed by 1.53e-3 for one text, above the 5e-4 tolerance. The runs before and after passed on the same code, so the result depends on the runner CPU. The tolerance is unchanged. Every action version in the new files is unverified.
 - **`buf lint`.** `buf` is not packaged in Fedora and this project installs tools only from Fedora. It runs in CI only.
 - **`kubeconform -strict`.** Same reason. It runs in CI only. `helm lint` ran locally.
-- **Trivy in CI.** A local `trivy image --severity CRITICAL --ignore-unfixed` scan found 0 critical findings (Debian base and Go binary). The `image` CI job has not run.
+- **Trivy in CI.** The `image` job of `ci.yml` (CRITICAL only) passed in the `ci` runs above. The HIGH scan in `security.yml` is described above.
 - **`ghz`.** Not packaged in Fedora. gRPC load used k6's gRPC client instead.
 - Docker. Docker is not installed here. CI uses Docker. Local runs used rootless podman.
 
@@ -112,7 +121,7 @@ NOT run yet:
 
 - **Not GPU serving.** CPU only. No GPU, CUDA, vLLM, Triton or distributed training. Micro-batching is the same idea GPU servers use, shown on CPU.
 - **Not a strong model.** A small hashed-feature model (fastText style), 86 percent accuracy, chosen so it trains and serves on a laptop. Not a transformer.
-- **Not production Kubernetes.** It runs on a local kind cluster. There is no managed cluster, service mesh, on-call, cluster upgrade or capacity planning. The HPA uses CPU only.
+- **Not production Kubernetes.** It runs on a local kind cluster. There is no managed cluster, service mesh, on-call or cluster upgrade. Capacity planning is only the one-laptop model in `docs/engagement/CAPACITY.md`. The HPA uses CPU only.
 - **Not secured.** No authentication and no TLS. A network boundary is assumed. See `SECURITY.md`.
 - **Not a model registry setup.** Model versions are baked into the image and selected by config.
 - **Not a benchmark.** Numbers come from one shared 2015 laptop, single runs.

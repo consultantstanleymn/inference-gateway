@@ -10,7 +10,7 @@ This file describes the security checks of the gateway. It lists what each job c
 | `secrets` | gitleaks over the full git history. | Any finding. | `gitleaks git --config .gitleaks.toml --redact --no-banner --exit-code 1 .` |
 | `sast` | golangci-lint with the `gosec` linter on. | Any issue. | `golangci-lint run ./...` |
 | `deps` | `govulncheck` for Go and `pip-audit` for the training lock file. | A finding that is not in `security/exceptions.json`. | `go run golang.org/x/vuln/cmd/govulncheck@latest ./...` and `pip-audit` (see below) |
-| `image` | Trivy scan of the gateway image. | HIGH or CRITICAL with a fix. | `trivy image --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 localhost/inference-gateway:dev` |
+| `image` | Trivy scan of the gateway image. | HIGH or CRITICAL with a fix that is not in `security/exceptions.json`. | `jq -r '.[] \| select(.tool=="trivy") \| .id' security/exceptions.json > /tmp/trivyignore` then `trivy image --severity HIGH,CRITICAL --ignore-unfixed --ignorefile /tmp/trivyignore --exit-code 1 localhost/inference-gateway:dev` |
 | `sbom` | CycloneDX SBOM of the source tree. | Job error. | `trivy fs --format cyclonedx --output docs/engagement/evidence/sbom-source.cdx.json .` |
 | `exceptions` | Checks `security/exceptions.json`. | A missing field or an expired date. | `python3 scripts/check_security_exceptions.py security/exceptions.json` |
 
@@ -40,7 +40,7 @@ The first run of `gosec` found 8 issues. Four are in test files. The test files 
 | pip-audit | Ran on this laptop. 5 findings in `setuptools`, all in the exceptions file. |
 | Trivy image scan | Ran on this laptop. Two HIGH findings: one fixed in `go.mod`, one filed as an exception. The image is rescanned after the next rebuild. |
 | CycloneDX SBOM | See `evidence/sbom-source.cdx.json`. |
-| `security.yml` workflow | Authored, not run. It passes `actionlint`. It never ran on GitHub. |
-| CodeQL | Authored, not run. It needs GitHub Actions. |
+| `security.yml` workflow | Authored here and checked with `actionlint`. GitHub started it on each push. Past runs (read only, see README "Verification status"): `codeql`, `secrets`, `sast`, `sbom` and `exceptions` passed; `deps` failed because CI used Go 1.26.0, and `image` failed because the job did not pass the exceptions to Trivy. Both causes are fixed. The run after the fix was not checked here. |
+| CodeQL | Runs only in GitHub Actions. The past runs passed (read only). |
 
 Action versions are unverified until a run.

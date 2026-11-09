@@ -8,11 +8,11 @@ Alerts: `GatewayLatencySLOFastBurn` and `GatewayLatencySLOSlowBurn` in `deploy/c
 
 1. Confirm the alert is firing in Prometheus.
    ```
-   curl -s http://127.0.0.1:9090/api/v1/alerts | jq '.data.alerts[] | select(.labels.alertname | startswith("GatewayLatencySLO"))'
+   curl -s http://127.0.0.1:25409/api/v1/alerts | jq '.data.alerts[] | select(.labels.alertname | startswith("GatewayLatencySLO"))'
    ```
 2. Open the Grafana dashboard `inf-golden` and read p95 by model version.
    ```
-   open http://127.0.0.1:3000/d/inf-golden
+   xdg-open http://127.0.0.1:25430/d/inf-golden
    ```
 3. On the same dashboard, read queue depth, shed rate and CPU.
 4. Check if the burn started after a deploy.
@@ -23,10 +23,7 @@ Alerts: `GatewayLatencySLOFastBurn` and `GatewayLatencySLOSlowBurn` in `deploy/c
    ```
    podman compose -f deploy/compose/compose.yaml up -d --force-recreate gateway
    ```
-6. If the canary is active, set the v2 weight to 0.
-   ```
-   scripts/canary-run.sh fail
-   ```
+6. If a canary run is active, the controller sets the v2 weight to 0 when the gate fails. The proxy has no manual weight control. To stop all canary traffic at once, stop the canary command (Ctrl-C) and send clients to the stable gateway directly.
 7. Record the alert name, the start time and the action in the incident note.
 
 ## 2. Canary rollback
@@ -40,13 +37,13 @@ The gate values are in `docs/engagement/ROLLOUT.md`. The proxy is a test tool, n
    ```
 2. Read the controller JSON lines in the output. Each line shows the step, the weight, the error rate and p95.
 3. On a gate breach the controller sets the v2 weight to 0 at once.
-4. The canary command exits with code 3 on a rollback. Check the exit code.
+4. After a rollback the command keeps serving at weight 0 until it gets a signal, so the load test can finish. Then it exits with code 3. Check the exit code after you stop it.
    ```
    echo $?
    ```
-5. Confirm the weight is 0.
+5. Confirm the weight is 0. The last controller line must be `{"result":"rolled_back", ...}`. If the command runs with `-metrics-addr`, check that `canary_proxy_requests_total{upstream="canary"}` stops rising.
    ```
-   curl -s http://127.0.0.1:8081/weight
+   curl -s http://<metrics-addr>/metrics | grep 'canary_proxy_requests_total{upstream="canary"}'
    ```
 6. Keep the transcript. The pass and fail transcripts live in `docs/engagement/evidence/`.
 
@@ -57,10 +54,7 @@ The gate values are in `docs/engagement/ROLLOUT.md`. The proxy is a test tool, n
    curl -s http://127.0.0.1:8080/metrics | grep 'gateway_requests_total{.*outcome="shed"'
    ```
 2. Check queue depth and CPU on the `inf-golden` dashboard.
-3. Scale out first.
-   ```
-   podman compose -f deploy/compose/compose.yaml up -d --scale gateway=3
-   ```
+3. Scale out first. On Kubernetes, check `kubectl get hpa`. If the HPA is at its maximum, raise `hpa.maxReplicas` in the Helm values (see `docs/RUNBOOK.md`). The local compose stack has one gateway with a fixed container name and a fixed host port, so it cannot scale out. Use it only to watch the signals.
 4. Do not raise the queue size first. A larger queue adds wait time and hides the overload.
 5. If shedding continues after scale out, check the batch settings against `docs/RUNBOOK.md`.
 6. Record the shed rate before and after the change.

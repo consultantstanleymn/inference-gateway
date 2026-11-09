@@ -46,7 +46,7 @@ Step 2 needs the image from `make image`. Step 7 exits with code 3 on the forced
 
 ## Remaining risks
 
-- New CI jobs are not checked on GitHub. The first security run failed and was not examined.
+- New CI jobs are not proven on GitHub. The past security runs failed in `deps` (CI used Go 1.26.0) and `image` (exceptions not passed to Trivy). Both causes are fixed, and the run after the fix was not checked here. One `ci` run failed in the Go and Python parity test on one runner CPU.
 - The release push and the cosign signing step are authored, not run.
 - No GPU work was done.
 - All numbers come from one laptop, with the load generator on the same machine.

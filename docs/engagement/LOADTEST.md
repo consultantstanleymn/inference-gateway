@@ -20,7 +20,7 @@ This page compares two load tools on the same gateway. All numbers were measured
 | 4000 | k6 | 3999.7 | 2.81 | 4.74 | 0 |
 | 4000 | Locust | 3189.0 | 65 | 83 | 0 |
 
-Locust achieved rate is the request count divided by 60 s. It includes the short ramp-up.
+Locust achieved rate is the request count in the Locust CSV file divided by 60 s. It includes the short ramp-up. The Locust HTML report counts a few more requests (116400 and 192662). The probable cause is that Locust writes the two files at different times during the stop. This was not checked. With the HTML counts, Locust is 3.0 percent below k6 at 2000 and 19.7 percent below at 4000. The result does not change.
 
 ## Reading the result
 

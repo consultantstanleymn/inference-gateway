@@ -1,3 +1,12 @@
+# Evidence: Dashboard queries against Prometheus during the diagnostics run
+label: VERIFIED LOCALLY
+date: 2026-11-09 11:50 UTC (the run; the header was added later in review)
+code commit: b67368640ae5eb803ebe4126927655988f329288
+working tree clean at run time: yes
+machine: MacBook Pro (mid 2015), 8 logical CPUs, 16 GB RAM, Fedora 44, podman 5.8.7 (measured on one laptop)
+command: flock heavy.lock nice -n 10 scripts/diag-run.sh (step "run every dashboard query against Prometheus")
+notes: Raw output written by scripts/diag-run.sh. The same lines are in diagnostics-stack-run.txt. A new run of the script writes this file again without this header.
+---
 1 series | Latency p50, p95, p99 by transport | histogram_quantile(0.5, sum by (le, transport) (rate(gateway_request_duration_seconds_bucket[1m])))
 1 series | Latency p50, p95, p99 by transport | histogram_quantile(0.95, sum by (le, transport) (rate(gateway_request_duration_seconds_bucket[1m])))
 1 series | Latency p50, p95, p99 by transport | histogram_quantile(0.99, sum by (le, transport) (rate(gateway_request_duration_seconds_bucket[1m])))
