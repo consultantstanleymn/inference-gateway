@@ -1,0 +1,18 @@
+# Evidence: Locust profile compared with k6 at two target rates
+label: VERIFIED LOCALLY
+date: 2026-11-09 10:53 UTC (the run; this file was written later)
+code commit: 8090d6828124be1ab992b1a8c804c1efd80f139b
+working tree clean at run time: yes
+machine: MacBook Pro (mid 2015), 8 logical CPUs, 16 GB RAM, Fedora 44, podman 5.8.7 (measured on one laptop)
+command: flock heavy.lock nice -n 10 scripts/locust-vs-k6.sh
+notes: I-4 is met at 2000 requests per second (Locust 3.8 percent below k6) and not met at 4000 (Locust 20.3 percent below k6). The Locust latency numbers include the cost of the Python load generator on the same laptop. No number was tuned.
+---
+load average before: 1.40 1.41 2.06
+gateway settings: workers=1 max-batch=16 max-wait=5ms ort-threads=1 queue=1024 timeout=5s, model v1
+
+target   | tool    | achieved rps |   p50 ms |   p95 ms |  failures
+2000     | k6      |       1999.9 |     3.79 |     6.28 |         0
+2000     | locust  |       1923.3 |       25 |       41 |         0
+4000     | k6      |       3999.7 |     2.81 |     4.74 |         0
+4000     | locust  |       3189.0 |       65 |       83 |         0
+load average after: 1.92 1.68 2.01
