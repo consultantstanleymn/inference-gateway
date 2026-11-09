@@ -68,7 +68,15 @@ Run locally on 2026-11-07 (Fedora 44, 2015 MacBook Pro, CPU only): training, exp
 
 NOT run yet:
 
-- **GitHub Actions.** The workflow is written and the commands in it were run locally, but the workflow itself has never run. Every action version in it is unverified. Do not claim a CI-tested result until the four jobs are green on `main`.
+- **GitHub Actions: new jobs.** Past results on `main`, read once from the GitHub API on 2026-11-09 (this read did not start or watch a run):
+
+  | Workflow | Run id | Head commit | Conclusion | Date |
+  |---|---|---|---|---|
+  | ci | 42445773905 | 0cf6579 | success | 2026-11-08 |
+  | ci | 42589487400 | 00ab08a | success | 2026-11-09 |
+  | security | 42589487570 | 00ab08a | failure (not examined) | 2026-11-09 |
+
+  The four `ci` jobs were green (checked by the owner on 2026-11-08). The `ci` run on 2026-11-09 only had documentation, the security files and a dependency bump on top. Jobs added after these runs have not been checked: the `rules` job, the SBOM step, the canary test step, `release.yml`, and the fixes to `security.yml`. The first `security` run failed and the reason has not been looked at. Every action version in the new files is unverified.
 - **`buf lint`.** `buf` is not packaged in Fedora and this project installs tools only from Fedora. It runs in CI only.
 - **`kubeconform -strict`.** Same reason. It runs in CI only. `helm lint` ran locally.
 - **Trivy in CI.** A local `trivy image --severity CRITICAL --ignore-unfixed` scan found 0 critical findings (Debian base and Go binary). The `image` CI job has not run.
