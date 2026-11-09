@@ -34,9 +34,9 @@ func main() {
 	switch os.Args[1] {
 	case "http":
 		body, _ := json.Marshal(map[string]string{"text": *text})
-		req, _ := http.NewRequestWithContext(ctx, http.MethodPost, "http://"+*addr+"/v1/classify", bytes.NewReader(body))
+		req, _ := http.NewRequestWithContext(ctx, http.MethodPost, "http://"+*addr+"/v1/classify", bytes.NewReader(body)) //nolint:gosec // probe is an operator tool; the address is its own flag
 		req.Header.Set("Content-Type", "application/json")
-		resp, err := http.DefaultClient.Do(req)
+		resp, err := http.DefaultClient.Do(req) //nolint:gosec // probe is an operator tool; the address is its own flag
 		if err != nil {
 			fail(err)
 		}

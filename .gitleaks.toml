@@ -1,0 +1,4 @@
+# Secret scan settings for the inference gateway.
+# The default rules stay on. Add an entry below only for a known public value.
+[extend]
+useDefault = true

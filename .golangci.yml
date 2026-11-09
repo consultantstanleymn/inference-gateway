@@ -1,0 +1,11 @@
+version: "2"
+linters:
+  default: standard
+  enable:
+    - gosec
+  exclusions:
+    rules:
+      # Tests start the built binary and copy fixtures with paths they build themselves.
+      - path: _test\.go
+        linters:
+          - gosec

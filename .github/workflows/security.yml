@@ -1,0 +1,90 @@
+name: security
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: "41 4 * * 1"
+permissions:
+  contents: read
+jobs:
+  codeql:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with: { go-version-file: go.mod }
+      - uses: github/codeql-action/init@v3
+        with:
+          languages: go
+      - uses: github/codeql-action/analyze@v3
+  secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install gitleaks
+        run: |
+          curl -sSL https://github.com/gitleaks/gitleaks/releases/download/v8.30.0/gitleaks_8.30.0_linux_x64.tar.gz | tar -xz gitleaks
+          sudo mv gitleaks /usr/local/bin/
+      - run: gitleaks git --config .gitleaks.toml --redact --no-banner --exit-code 1 .
+  sast:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with: { go-version-file: go.mod }
+      - uses: golangci/golangci-lint-action@v8
+        with:
+          version: latest
+  deps:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with: { go-version-file: go.mod }
+      - name: Go vulnerabilities
+        run: |
+          go install golang.org/x/vuln/cmd/govulncheck@latest
+          govulncheck ./...
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - name: Python vulnerabilities in the training lock file
+        run: |
+          pip install pip-audit
+          sed 's/+cpu//' train/requirements.lock.txt > /tmp/requirements.audit.txt
+          python3 scripts/check_security_exceptions.py security/exceptions.json
+          # shellcheck disable=SC2046
+          pip-audit --no-deps --disable-pip -r /tmp/requirements.audit.txt $(jq -r '.[] | select(.tool=="pip-audit") | "--ignore-vuln " + .id' security/exceptions.json)
+  image:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch ONNX Runtime
+        run: scripts/fetch-onnxruntime.sh
+      - name: Build image
+        run: docker build -f Containerfile -t localhost/inference-gateway:sec .
+      - name: Trivy scan
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sudo sh -s -- -b /usr/local/bin
+          trivy image --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 localhost/inference-gateway:sec
+  sbom:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install trivy
+        run: curl -sSfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sudo sh -s -- -b /usr/local/bin
+      - run: trivy fs --format cyclonedx --output sbom-source.cdx.json .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sbom
+          path: sbom-source.cdx.json
+  exceptions:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 scripts/check_security_exceptions.py security/exceptions.json

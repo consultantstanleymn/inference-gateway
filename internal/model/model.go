@@ -43,7 +43,7 @@ func initEnv(libPath string) error {
 
 // Load reads dir/meta.json and dir/model.onnx, checks the SHA-256 and opens a session.
 func Load(dir, libPath string, threads int) (*Model, error) {
-	raw, err := os.ReadFile(filepath.Join(dir, "meta.json"))
+	raw, err := os.ReadFile(filepath.Join(dir, "meta.json")) //nolint:gosec // the model directory comes from operator configuration, not from a request
 	if err != nil {
 		return nil, fmt.Errorf("read meta: %w", err)
 	}
@@ -52,7 +52,7 @@ func Load(dir, libPath string, threads int) (*Model, error) {
 		return nil, fmt.Errorf("parse meta: %w", err)
 	}
 	onnxPath := filepath.Join(dir, "model.onnx")
-	blob, err := os.ReadFile(onnxPath)
+	blob, err := os.ReadFile(onnxPath) //nolint:gosec // the model path comes from operator configuration, not from a request
 	if err != nil {
 		return nil, fmt.Errorf("read model: %w", err)
 	}

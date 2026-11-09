@@ -1,0 +1,34 @@
+[
+  {
+    "id": "PYSEC-2025-49",
+    "tool": "pip-audit",
+    "reason": "setuptools 78.1.0 is pinned in the training lock file. It is used only to train and export models on a developer machine. It is not in the gateway image.",
+    "owner": "Stanley Sujith Nelavala",
+    "expires": "2027-02-07",
+    "review_note": "Bump setuptools in train/requirements.lock.txt and retrain the model check before this date."
+  },
+  {
+    "id": "PYSEC-2026-3447",
+    "tool": "pip-audit",
+    "reason": "Same package and same use as PYSEC-2025-49. Training machine only.",
+    "owner": "Stanley Sujith Nelavala",
+    "expires": "2027-02-07",
+    "review_note": "Fixed in setuptools 83.0.0. Bump the lock file together with the first item."
+  },
+  {
+    "id": "GHSA-xmj3-9gf7-h52w",
+    "tool": "pip-audit",
+    "reason": "Same package and same use as PYSEC-2025-49. Training machine only.",
+    "owner": "Stanley Sujith Nelavala",
+    "expires": "2027-02-07",
+    "review_note": "Fixed in setuptools 84.1.0. Bump the lock file together with the first item."
+  },
+  {
+    "id": "CVE-2026-84782",
+    "tool": "trivy",
+    "reason": "libssl3 3.0.20 comes from the distroless base image. The gateway does not use DTLS. The fixed package 3.0.22 is not in the pinned base image yet.",
+    "owner": "Stanley Sujith Nelavala",
+    "expires": "2027-02-07",
+    "review_note": "Rebuild the image on a newer distroless base and remove this item."
+  }
+]
