@@ -1,0 +1,19 @@
+# Evidence: INF baseline before engagement work
+label: VERIFIED LOCALLY
+date: 2026-11-09 08:39 UTC
+code commit: 0cf6579c349fca31cd046d694f89baee628d407a
+working tree clean at run time: yes
+machine: MacBook Pro (mid 2015), 8 logical CPUs, 16 GB RAM, Fedora 44, podman 5.8.7 (measured on one laptop)
+command: go vet ./... && golangci-lint run ./... && nice -n 10 go test -race -count=1 ./...
+notes: Vet, lint (0 issues) and race tests passed at the baseline commit. This says nothing about GitHub Actions.
+---
+0 issues.
+ok  	github.com/consultantstanleymn/inference-gateway/cmd/gateway	5.029s
+?   	github.com/consultantstanleymn/inference-gateway/cmd/probe	[no test files]
+?   	github.com/consultantstanleymn/inference-gateway/gen/inferencev1	[no test files]
+ok  	github.com/consultantstanleymn/inference-gateway/internal/batcher	1.161s
+?   	github.com/consultantstanleymn/inference-gateway/internal/config	[no test files]
+ok  	github.com/consultantstanleymn/inference-gateway/internal/model	1.619s
+ok  	github.com/consultantstanleymn/inference-gateway/internal/server	1.566s
+?   	github.com/consultantstanleymn/inference-gateway/internal/telemetry	[no test files]
+ok  	github.com/consultantstanleymn/inference-gateway/internal/tokenize	1.113s
