@@ -67,10 +67,15 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--image", default="localhost/inference-gateway:dev")
     ap.add_argument("--out", default="release/manifest.json")
+    ap.add_argument(
+        "--image-digest",
+        default="",
+        help="registry digest of the pushed image (CI); when empty, podman image inspect gives it",
+    )
     args = ap.parse_args()
 
     image_id = run(["podman", "image", "inspect", "--format", "{{.Id}}", args.image])
-    image_digest = run(["podman", "image", "inspect", "--format", "{{.Digest}}", args.image])
+    image_digest = args.image_digest or run(["podman", "image", "inspect", "--format", "{{.Digest}}", args.image])
     gate = ROOT / "train" / "gate.json"
     lib = ROOT / "third_party" / "libonnxruntime.so"
     manifest = {
@@ -87,8 +92,8 @@ def main() -> int:
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print(f"wrote {args.out}: {len(manifest['models'])} models")
-    if not image_id:
-        print("note: no image id found; build the image first", file=sys.stderr)
+    if not image_id and not image_digest:
+        print("note: no image id or digest found; build the image first", file=sys.stderr)
     return 0
 
 

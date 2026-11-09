@@ -42,11 +42,20 @@ jobs:
           output: sbom-image.cdx.json
       - name: Attach the SBOM to the image
         run: cosign attest --yes --type cyclonedx --predicate sbom-image.cdx.json "${IMAGE}@${{ steps.build.outputs.digest }}"
+      - uses: actions/setup-go@v5
+        with: { go-version: "1.26.x", check-latest: true }
       - name: Release manifest
-        run: python3 scripts/release_manifest.py --image "${IMAGE}:${{ github.ref_name }}" --out release/manifest.json
+        run: >-
+          python3 scripts/release_manifest.py
+          --image "${IMAGE}:${{ github.ref_name }}"
+          --image-digest "${{ steps.build.outputs.digest }}"
+          --out release/manifest.json
+      - name: Sign the release manifest (model and runtime hashes, keyless)
+        run: cosign sign-blob --yes --bundle release/manifest.json.sigstore.json release/manifest.json
       - uses: actions/upload-artifact@v4
         with:
           name: release-files
           path: |
             sbom-image.cdx.json
             release/manifest.json
+            release/manifest.json.sigstore.json
