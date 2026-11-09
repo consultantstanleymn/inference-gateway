@@ -1,0 +1,44 @@
+# Evidence: Security gate local run
+label: PARTLY RUN
+date: 2026-11-09 08:54 UTC
+code commit: a59d6ba5a37b7452c5b09fc61768935988f5af46
+working tree clean at run time: yes
+machine: MacBook Pro (mid 2015), 8 logical CPUs, 16 GB RAM, Fedora 44, podman 5.8.7 (measured on one laptop)
+command: see sections below (gitleaks, golangci-lint, govulncheck, pip-audit, trivy, actionlint)
+notes: Local tools ran. The image rescan after the dependency bump is not in this file; the image on this laptop predates the fix. The workflow did not run on GitHub.
+---
+## Secret scan, full git history
+3:54AM INF scanned ~1534150 bytes (1.53 MB) in 2.77s
+3:54AM INF no leaks found
+## Secret scan, working tree
+scanned ~85 MB, no leaks found
+
+## golangci-lint with gosec
+First run: 8 gosec issues (4 in tests, 4 in cmd/probe and internal/model). Fix: test exclusion in .golangci.yml and nolint comments with reasons. Second run: 0 issues.
+
+## govulncheck (go run golang.org/x/vuln/cmd/govulncheck@latest ./...)
+No vulnerabilities found. Your code is affected by 0 vulnerabilities. 2 vulnerabilities in required modules that the code does not call.
+
+## pip-audit on train/requirements.lock.txt (with +cpu removed, --no-deps --disable-pip)
+5 findings in setuptools 78.1.0 (PYSEC-2025-49, PYSEC-2026-3447, GHSA-xmj3-9gf7-h52w). Training machine only. Filed in security/exceptions.json until 2027-02-07. With the ignore list: No known vulnerabilities found, 5 ignored.
+
+## Trivy image scan of localhost/inference-gateway:dev (HIGH,CRITICAL, fixed only)
+First scan, exit code 1, two findings:
+- libssl3 3.0.20-1~deb12u2, fixed in 3.0.22 (CVE-2026-84782), from the distroless base image. Filed in security/exceptions.json.
+- golang.org/x/net v0.60.0, fixed in 0.62.0 (CVE-2026-78661) in the gateway binary. Fix: go get golang.org/x/net@v0.62.0 (go.mod and go.sum). go test passes.
+The image on this laptop is older than the fix. It is rebuilt and scanned again in the release step.
+
+## SBOM
+docs/engagement/evidence/sbom-source.cdx.json written with trivy fs (CycloneDX).
+
+## Workflow lint
+actionlint: clean
+
+## Exceptions checker
+OK: 4 exception(s) in security/exceptions.json
+good file: accepted
+expired file: rejected
+missing field: rejected
+
+## Not run
+Authored, not run: .github/workflows/security.yml is written and syntax-checked with actionlint 1.7.12. It was not executed against GitHub Actions. Reason: needs GitHub Actions. The CodeQL job is in the same state.
