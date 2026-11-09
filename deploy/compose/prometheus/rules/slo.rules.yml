@@ -1,0 +1,52 @@
+groups:
+  - name: gateway-latency-slo
+    interval: 30s
+    rules:
+      - record: gateway:latency_good_ratio:rate5m
+        expr: |
+          sum(rate(gateway_request_duration_seconds_bucket{le="0.05"}[5m]))
+          /
+          sum(rate(gateway_request_duration_seconds_count[5m]))
+      - record: gateway:latency_good_ratio:rate30m
+        expr: |
+          sum(rate(gateway_request_duration_seconds_bucket{le="0.05"}[30m]))
+          /
+          sum(rate(gateway_request_duration_seconds_count[30m]))
+      - record: gateway:latency_good_ratio:rate1h
+        expr: |
+          sum(rate(gateway_request_duration_seconds_bucket{le="0.05"}[1h]))
+          /
+          sum(rate(gateway_request_duration_seconds_count[1h]))
+      - record: gateway:latency_good_ratio:rate6h
+        expr: |
+          sum(rate(gateway_request_duration_seconds_bucket{le="0.05"}[6h]))
+          /
+          sum(rate(gateway_request_duration_seconds_count[6h]))
+
+  - name: gateway-latency-slo-alerts
+    interval: 30s
+    rules:
+      - alert: GatewayLatencySLOFastBurn
+        expr: |
+          (1 - gateway:latency_good_ratio:rate1h) > (14.4 * 0.01)
+          and
+          (1 - gateway:latency_good_ratio:rate5m) > (14.4 * 0.01)
+        for: 2m
+        labels:
+          severity: page
+        annotations:
+          summary: "Gateway latency SLO fast burn"
+          description: "More than 14.4 times the allowed error rate over the last 1h and 5m. The 50 ms latency SLO will be missed soon. Check the gateway and the model."
+          runbook: "docs/engagement/RUNBOOK.md"
+      - alert: GatewayLatencySLOSlowBurn
+        expr: |
+          (1 - gateway:latency_good_ratio:rate6h) > (6 * 0.01)
+          and
+          (1 - gateway:latency_good_ratio:rate30m) > (6 * 0.01)
+        for: 15m
+        labels:
+          severity: ticket
+        annotations:
+          summary: "Gateway latency SLO slow burn"
+          description: "More than 6 times the allowed error rate over the last 6h and 30m. The 50 ms latency SLO budget is draining. Plan a fix in working hours."
+          runbook: "docs/engagement/RUNBOOK.md"

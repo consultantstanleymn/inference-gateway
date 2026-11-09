@@ -1,0 +1,82 @@
+rule_files:
+  - slo.rules.yml
+
+evaluation_interval: 1m
+
+tests:
+  - name: healthy traffic keeps the SLO and fires nothing
+    interval: 1m
+    input_series:
+      - series: 'gateway_request_duration_seconds_bucket{le="0.05",transport="http",model_version="v1"}'
+        values: '0+5994x120'
+      - series: 'gateway_request_duration_seconds_bucket{le="+Inf",transport="http",model_version="v1"}'
+        values: '0+6000x120'
+      - series: 'gateway_request_duration_seconds_count{transport="http",model_version="v1"}'
+        values: '0+6000x120'
+    alert_rule_test:
+      - eval_time: 120m
+        alertname: GatewayLatencySLOFastBurn
+        exp_alerts: []
+      - eval_time: 120m
+        alertname: GatewayLatencySLOSlowBurn
+        exp_alerts: []
+
+  - name: sharp slowdown fires the fast burn alert
+    interval: 1m
+    input_series:
+      - series: 'gateway_request_duration_seconds_bucket{le="0.05",transport="http",model_version="v1"}'
+        values: '0+4200x70'
+      - series: 'gateway_request_duration_seconds_bucket{le="+Inf",transport="http",model_version="v1"}'
+        values: '0+6000x70'
+      - series: 'gateway_request_duration_seconds_count{transport="http",model_version="v1"}'
+        values: '0+6000x70'
+    alert_rule_test:
+      - eval_time: 70m
+        alertname: GatewayLatencySLOFastBurn
+        exp_alerts:
+          - exp_labels:
+              severity: page
+            exp_annotations:
+              summary: "Gateway latency SLO fast burn"
+              description: "More than 14.4 times the allowed error rate over the last 1h and 5m. The 50 ms latency SLO will be missed soon. Check the gateway and the model."
+              runbook: "docs/engagement/RUNBOOK.md"
+
+  - name: mild slowdown fires the slow burn alert only
+    interval: 1m
+    input_series:
+      - series: 'gateway_request_duration_seconds_bucket{le="0.05",transport="http",model_version="v1"}'
+        values: '0+5640x420'
+      - series: 'gateway_request_duration_seconds_bucket{le="+Inf",transport="http",model_version="v1"}'
+        values: '0+6000x420'
+      - series: 'gateway_request_duration_seconds_count{transport="http",model_version="v1"}'
+        values: '0+6000x420'
+    alert_rule_test:
+      - eval_time: 420m
+        alertname: GatewayLatencySLOSlowBurn
+        exp_alerts:
+          - exp_labels:
+              severity: ticket
+            exp_annotations:
+              summary: "Gateway latency SLO slow burn"
+              description: "More than 6 times the allowed error rate over the last 6h and 30m. The 50 ms latency SLO budget is draining. Plan a fix in working hours."
+              runbook: "docs/engagement/RUNBOOK.md"
+      - eval_time: 420m
+        alertname: GatewayLatencySLOFastBurn
+        exp_alerts: []
+
+  - name: short spike then recovery fires nothing at the end
+    interval: 1m
+    input_series:
+      - series: 'gateway_request_duration_seconds_bucket{le="0.05",transport="http",model_version="v1"}'
+        values: '0+4200x10 42000+5994x110'
+      - series: 'gateway_request_duration_seconds_bucket{le="+Inf",transport="http",model_version="v1"}'
+        values: '0+6000x10 60000+6000x110'
+      - series: 'gateway_request_duration_seconds_count{transport="http",model_version="v1"}'
+        values: '0+6000x10 60000+6000x110'
+    alert_rule_test:
+      - eval_time: 120m
+        alertname: GatewayLatencySLOFastBurn
+        exp_alerts: []
+      - eval_time: 120m
+        alertname: GatewayLatencySLOSlowBurn
+        exp_alerts: []
