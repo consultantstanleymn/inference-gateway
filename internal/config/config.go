@@ -14,6 +14,7 @@ type Config struct {
 	ORTLib          string
 	HTTPAddr        string
 	GRPCAddr        string
+	AdminAddr       string // empty means the admin listener (pprof) is off
 	MaxBatch        int
 	MaxWait         time.Duration
 	QueueSize       int
@@ -54,6 +55,7 @@ func Parse(args []string) (Config, error) {
 	fs.StringVar(&c.ORTLib, "ort-lib", env("ORT_LIB", "third_party/libonnxruntime.so"), "path to libonnxruntime.so")
 	fs.StringVar(&c.HTTPAddr, "http-addr", env("HTTP_ADDR", ":8080"), "HTTP listen address")
 	fs.StringVar(&c.GRPCAddr, "grpc-addr", env("GRPC_ADDR", ":9090"), "gRPC listen address")
+	fs.StringVar(&c.AdminAddr, "admin-addr", env("ADMIN_ADDR", ""), "admin listen address for pprof; empty turns it off")
 	fs.IntVar(&c.MaxBatch, "max-batch", envInt("MAX_BATCH", 16), "largest batch")
 	fs.DurationVar(&c.MaxWait, "max-wait", envDur("MAX_WAIT", 5*time.Millisecond), "longest wait to fill a batch")
 	fs.IntVar(&c.QueueSize, "queue-size", envInt("QUEUE_SIZE", 256), "bounded queue length")

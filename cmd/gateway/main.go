@@ -58,9 +58,13 @@ func run() error {
 	if err != nil {
 		return err
 	}
-	errc := make(chan error, 2)
+	errc := make(chan error, 3)
 	go func() { errc <- srv.ServeHTTP(hl) }()
 	go func() { errc <- srv.ServeGRPC(gl) }()
+	admin, err := startAdmin(cfg.AdminAddr, errc)
+	if err != nil {
+		return err
+	}
 	slog.Info("listening", "http", hl.Addr().String(), "grpc", gl.Addr().String())
 
 	// Warm-up: run a few batches so the first real request does not pay start-up cost.
@@ -95,6 +99,9 @@ func run() error {
 	defer cancel()
 	if err := srv.Shutdown(sctx); err != nil {
 		slog.Error("shutdown", "err", err)
+	}
+	if admin != nil {
+		_ = admin.Shutdown(sctx)
 	}
 	b.Close()
 	_ = flush(sctx)
