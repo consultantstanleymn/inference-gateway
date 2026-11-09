@@ -9,7 +9,7 @@ This is a portfolio project. It is not hardened for production. This page says w
 - The model file is checked against a SHA-256 in `meta.json` at start. A changed model file does not load (tested).
 - The ONNX Runtime library download is pinned to one version and checked against a SHA-256 in `scripts/fetch-onnxruntime.sh`. The checksum was recorded when the file was first downloaded from the official release page. It is not signed by a second source.
 - Request bodies are limited to 64 KiB. Each request has a deadline. A full queue returns 429, so a burst cannot grow memory without limit.
-- CI scans the image with Trivy and fails on critical findings that have a fix. A local scan of the image found 0 critical findings on 2026-11-07. The CI job has not run yet (see README, "Verification status").
+- The security workflow (`.github/workflows/security.yml`) scans secrets with gitleaks, Go code with golangci-lint and gosec, Go dependencies with govulncheck, the training lock file with pip-audit, the image with Trivy (HIGH and CRITICAL with a fix), and writes CycloneDX SBOMs. Accepted findings are in `security/exceptions.json` and expire. The local runs are in `docs/engagement/SECURITY-GATE.md`. The workflow has not been checked on GitHub (see README, "Verification status").
 - No secrets are in the repository. The gateway needs none.
 
 ## What is not in place
@@ -18,8 +18,9 @@ This is a portfolio project. It is not hardened for production. This page says w
 - **No TLS.** HTTP and gRPC are plaintext.
 - **No rate limit per caller.** Load shedding protects the service as a whole, not one caller from another.
 - **No input sanitising beyond size and encoding.** The model only sees hashed word features, but logs and traces could contain customer text if you add that. The code does not log request text.
-- **No supply-chain controls** beyond Go module checksums (`go.sum`) and pinned Python versions. There is no SBOM or signature on the image.
+- **Supply chain: partly.** Go module checksums (`go.sum`), pinned Python versions, a CycloneDX SBOM and a release manifest with model and runtime hashes (`release/manifest.json`) exist. Image signing is written for CI (`.github/workflows/release.yml`) and has not run.
 - **Model files are baked into the image.** There is no signed model registry.
+- **The admin listener (pprof) is off by default.** When you turn it on (`GATEWAY_ADMIN_ADDR`), keep it on a loopback address. It has no authentication.
 - The OpenTelemetry Collector in the e2e test uses plaintext OTLP inside the test cluster.
 
 ## Data

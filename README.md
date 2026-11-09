@@ -27,6 +27,31 @@ flowchart LR
   gw -.runs in.-> k8s
 ```
 
+## Verified locally
+
+Every claim below was run on one laptop (MacBook Pro mid 2015, 8 logical CPUs; measured on one laptop). The load generator shares the machine. Dates are 2026-11-09. The evidence files hold the raw output and the commit.
+
+| Claim | Command | Evidence | Date |
+|---|---|---|---|
+| Golden-signals dashboard queries return data and one request trace has the spans `POST /v1/classify`, `tokenize`, `queue.wait`, `batch.run` (no screenshot) | `scripts/diag-run.sh` | `docs/engagement/evidence/diagnostics-stack-run.txt`, `docs/engagement/evidence/jaeger-request-trace.json` | 2026-11-09 |
+| Label sets stay bounded; latency has a `model_version` label; exemplars carry trace ids | `go test -race ./internal/...` | `docs/engagement/TELEMETRY.md` | 2026-11-09 |
+| Locust against k6: 3.8 percent below k6 at 2000 rps, 20.3 percent below at 4000 rps (not within the 10 percent margin at 4000) | `scripts/locust-vs-k6.sh` | `docs/engagement/evidence/locust-vs-k6.txt` | 2026-11-09 |
+| One-factor experiments with pprof at 6000 rps; the gateway used about 1.2 cores; GC and the tokenizer are ruled out | `scripts/experiment.sh` | `docs/engagement/evidence/experiments/README.md` | 2026-11-09 |
+| Capacity model: median 5214.3 rps per core, 10x launch peak 5208.3 rps, 2 to 3 replicas of 2 cores (an estimate from one laptop) | `python3 scripts/capacity_model.py --check-doc docs/engagement/CAPACITY.md` | `docs/engagement/evidence/capacity-model-output.txt` | 2026-11-09 |
+| Canary with automatic rollback: a healthy canary was promoted through four steps; a canary with 30 percent errors was rolled back at the first step | `scripts/canary-run.sh pass`, `scripts/canary-run.sh fail` | `docs/engagement/evidence/canary-pass.txt`, `docs/engagement/evidence/canary-fail-rollback.txt` | 2026-11-09 |
+| Latency SLO alerts behave as written | `promtool test rules` (container image) | `docs/engagement/evidence/promtool-latency-slo.txt` | 2026-11-09 |
+| Image SBOM and a release manifest with model and runtime hashes | `scripts/release_manifest.py` | `docs/engagement/evidence/sbom-image.cdx.json`, `release/manifest.json` | 2026-11-09 |
+| gitleaks, gosec, govulncheck, pip-audit and Trivy ran locally | see the file | `docs/engagement/evidence/security-gate-local.txt` | 2026-11-09 |
+
+## Authored, not run
+
+| File | What it would do | Why it did not run |
+|---|---|---|
+| `.github/workflows/release.yml` | Build, push to GHCR, sign the image with cosign, attach the SBOM | Authored, not run: written and syntax-checked with actionlint 1.7.12. Not executed against GitHub Actions. Reason: needs GitHub Actions |
+| `.github/workflows/security.yml` (CodeQL job and the others) and the new steps in `ci.yml` | Run the security gate and the rules checks in GitHub Actions | Authored, not run: checked with actionlint. The first `security` run on GitHub failed and was not examined. Reason: needs GitHub Actions |
+| `docs/engagement/adr/0003-gpu-and-fine-tuning.md` | A decision about GPU serving and fine-tuning | Decision level only. No GPU work was built or measured |
+| `docker compose` check of `deploy/compose/compose.yaml` | Validate the file with the Docker plugin | Authored, not run: `podman compose config` passed. Reason: the Docker compose plugin is not installed here |
+
 ## Quick start
 
 ```bash
