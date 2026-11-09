@@ -5,6 +5,7 @@ import (
 	"math"
 	"os"
 	"path/filepath"
+	"sort"
 	"testing"
 
 	"github.com/consultantstanleymn/inference-gateway/internal/tokenize"
@@ -44,25 +45,61 @@ func TestParityWithPython(t *testing.T) {
 		t.Fatalf("want 200 cases, got %d", len(cases))
 	}
 	// One row per call, like the Python fixture. Dynamic int8 scales activations per batch,
-	// so only identical batches match closely. CPUs also differ slightly in int8 kernels, so the tolerance is 5e-4.
+	// so only identical batches match closely. CPUs also differ in int8 kernels (see ADR 0004).
+	// The test therefore checks three things: a hard cap on the largest difference, a tight bound
+	// on the 99th percentile over all probabilities, and full agreement on the top intents.
+	var diffs []float64
 	for _, c := range cases {
 		got, err := m.Run([][]int64{tokenize.Features(c.Text)})
 		if err != nil {
 			t.Fatal(err)
 		}
-		top := 0
-		for j, p := range got[0] {
-			if p > got[0][top] {
-				top = j
-			}
-			if d := math.Abs(float64(p - c.Probs[j])); d > 5e-4 {
-				t.Fatalf("%q class %d: go %v python %v diff %v", c.Text, j, p, c.Probs[j], d)
-			}
+		if len(got[0]) != len(c.Probs) {
+			t.Fatalf("%q: %d classes, python %d", c.Text, len(got[0]), len(c.Probs))
 		}
-		if top != c.Top {
-			t.Fatalf("%q: top %d, python %d", c.Text, top, c.Top)
+		for j, p := range got[0] {
+			d := math.Abs(float64(p - c.Probs[j]))
+			if d > parityMaxAbs {
+				t.Fatalf("%q class %d: go %v python %v diff %v above cap %v", c.Text, j, p, c.Probs[j], d, parityMaxAbs)
+			}
+			diffs = append(diffs, d)
+		}
+		goTop, pyTop := topK(got[0], 3), topK(c.Probs, 3)
+		if goTop[0] != c.Top || pyTop[0] != c.Top {
+			t.Fatalf("%q: top-1 go %d, python %d, fixture %d", c.Text, goTop[0], pyTop[0], c.Top)
+		}
+		// Top-3 as sets. A class may differ only if its Python probability is within the cap
+		// of the Python third place (a near tie, where int8 noise can swap the order).
+		in := map[int]bool{}
+		for _, k := range pyTop {
+			in[k] = true
+		}
+		for _, k := range goTop {
+			if !in[k] && float64(c.Probs[pyTop[2]]-c.Probs[k]) > parityMaxAbs {
+				t.Fatalf("%q: go top-3 %v, python top-3 %v", c.Text, goTop, pyTop)
+			}
 		}
 	}
+	sort.Float64s(diffs)
+	if p99 := diffs[len(diffs)*99/100]; p99 > parityP99 {
+		t.Fatalf("p99 diff %v above %v", p99, parityP99)
+	}
+}
+
+// Parity bounds, justified in docs/engagement/adr/0004-quantized-parity-bound.md.
+const (
+	parityMaxAbs = 5e-3 // 3x the largest cross-CPU difference seen in CI (1.53e-3)
+	parityP99    = 5e-4 // the old per-value bound, now applied to the 99th percentile
+)
+
+// topK returns the indexes of the k largest values, largest first. Ties go to the lower index.
+func topK(p []float32, k int) []int {
+	idx := make([]int, len(p))
+	for i := range idx {
+		idx[i] = i
+	}
+	sort.SliceStable(idx, func(a, b int) bool { return p[idx[a]] > p[idx[b]] })
+	return idx[:k]
 }
 
 // TestBatchCompositionEffect documents a real property of dynamic int8: the same text can get

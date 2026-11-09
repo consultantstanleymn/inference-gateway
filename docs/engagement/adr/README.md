@@ -13,6 +13,7 @@ New ADRs here start at number 0003, because the items in `DECISIONS.md` are the 
 | ADR | Title | Status |
 |---|---|---|
 | [0003](0003-gpu-and-fine-tuning.md) | GPU serving and fine-tuning | accepted |
+| [0004](0004-quantized-parity-bound.md) | Parity bound for the int8 model | accepted |
 
 ## Format
 
