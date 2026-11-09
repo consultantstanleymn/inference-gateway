@@ -21,7 +21,7 @@ FACTOR=""
 VALUES=""
 RATE=6000
 DURATION=60s
-OUT="docs/engagement/evidence/experiments"
+OUT="${EXPERIMENT_OUT:-docs/engagement/evidence/experiments}"
 HTTP_PORT=25480
 GRPC_PORT=25490
 ADMIN_PORT=25406
@@ -140,6 +140,8 @@ for value in $VALUES; do
   kill "$GW_PID" 2>/dev/null || true
   wait "$GW_PID" 2>/dev/null || true
   GW_PID=""
+  # EXPERIMENT_SAVE_LOG=1 keeps the gateway log, for example with GODEBUG=gctrace=1 set in the environment.
+  if [[ -n "${EXPERIMENT_SAVE_LOG:-}" ]]; then cp "$TMP/${name}.log" "${OUT}/${name}.gateway.log"; fi
   sleep 2
 done
 echo "done: files are in ${OUT}"
