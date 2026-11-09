@@ -1,0 +1,27 @@
+# Evidence: Latency SLO rules checked and unit tested with promtool
+label: VERIFIED LOCALLY
+date: 2026-11-09 09:48 UTC
+code commit: b15d17cfaad00134f5a4b4d7fffa3f4d03ebc4b0
+working tree clean at run time: yes
+machine: MacBook Pro (mid 2015), 8 logical CPUs, 16 GB RAM, Fedora 44, podman 5.8.7 (measured on one laptop)
+command: podman run --rm -v "$PWD/deploy/compose/prometheus/rules:/r:ro,z" --entrypoint promtool docker.io/prom/prometheus:v2.55.1 test rules /r/slo.rules.test.yml
+notes: promtool really ran (v2.55.1 image). The tests use made-up counter series, not traffic from the gateway. This proves the alert logic, not the real latency.
+---
+$ promtool check rules slo.rules.yml
+Checking /r/slo.rules.yml
+  SUCCESS: 6 rules found
+
+
+$ promtool test rules slo.rules.test.yml
+  SUCCESS
+
+
+$ promtool check config prometheus.yml (with the rules directory mounted)
+  SUCCESS: 1 rule files found
+ SUCCESS: /etc/prometheus/prometheus.yml is valid prometheus config file syntax
+
+Checking /etc/prometheus/rules/slo.rules.yml
+  SUCCESS: 6 rules found
+
+
+Mutation check: the fast-burn threshold 14.4 was changed to 1440 in a scratch copy; the test "sharp slowdown fires the fast burn alert" then FAILED (promtool exit 1). The file was restored.
