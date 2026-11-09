@@ -69,6 +69,8 @@ jobs:
           push: false
       - name: Race tests (tokenizer golden, parity, batcher, server, SIGTERM drain)
         run: go test -race -count=1 ./...
+      - name: Canary controller tests
+        run: go test -race -count=1 ./internal/canary/
 
   image:
     runs-on: ubuntu-latest
@@ -84,6 +86,28 @@ jobs:
           severity: CRITICAL
           exit-code: "1"
           ignore-unfixed: true
+      - name: SBOM for the image (CycloneDX)
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: localhost/inference-gateway:dev
+          format: cyclonedx
+          output: sbom-image.cdx.json
+      - name: Upload SBOM
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom-image
+          path: sbom-image.cdx.json
+
+  rules:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compose file is valid
+        run: docker compose -f deploy/compose/compose.yaml config -q
+      - name: Prometheus config check
+        run: docker run --rm -v "$PWD/deploy/compose/prometheus:/p:ro" --entrypoint promtool prom/prometheus:v2.55.1 check config /p/prometheus.yml
+      - name: SLO rules unit test
+        run: docker run --rm -v "$PWD/deploy/compose/prometheus/rules:/r:ro" --entrypoint promtool prom/prometheus:v2.55.1 test rules /r/slo.rules.test.yml
 
   kind-e2e:
     runs-on: ubuntu-latest
