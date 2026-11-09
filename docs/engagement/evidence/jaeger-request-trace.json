@@ -1,54 +1,15 @@
 {
   "data": [
     {
-      "traceID": "56f4caf3f2e58f8bad0db25b92580f53",
+      "traceID": "c91862bd3c44458271d809567d518edd",
       "spans": [
         {
-          "traceID": "56f4caf3f2e58f8bad0db25b92580f53",
-          "spanID": "078c8eeaf1fc5686",
-          "operationName": "batch.run",
-          "references": [
-            {
-              "refType": "CHILD_OF",
-              "traceID": "56f4caf3f2e58f8bad0db25b92580f53",
-              "spanID": "69549e0e5025804a"
-            }
-          ],
-          "startTime": 1794217197069769,
-          "duration": 95,
-          "tags": [
-            {
-              "key": "batch.size",
-              "type": "int64",
-              "value": 2
-            },
-            {
-              "key": "model.version",
-              "type": "string",
-              "value": "v1"
-            },
-            {
-              "key": "otel.scope.name",
-              "type": "string",
-              "value": "inference-gateway"
-            },
-            {
-              "key": "span.kind",
-              "type": "string",
-              "value": "internal"
-            }
-          ],
-          "logs": [],
-          "processID": "p1",
-          "warnings": null
-        },
-        {
-          "traceID": "56f4caf3f2e58f8bad0db25b92580f53",
-          "spanID": "69549e0e5025804a",
+          "traceID": "c91862bd3c44458271d809567d518edd",
+          "spanID": "b47191c4013e42b3",
           "operationName": "POST /v1/classify",
           "references": [],
-          "startTime": 1794217197068659,
-          "duration": 1254,
+          "startTime": 1794225084807104,
+          "duration": 5399,
           "tags": [
             {
               "key": "client.address",
@@ -58,7 +19,7 @@
             {
               "key": "http.request.body.size",
               "type": "int64",
-              "value": 49
+              "value": 38
             },
             {
               "key": "http.request.method",
@@ -68,7 +29,7 @@
             {
               "key": "http.response.body.size",
               "type": "int64",
-              "value": 287
+              "value": 254
             },
             {
               "key": "http.response.status_code",
@@ -83,7 +44,7 @@
             {
               "key": "network.peer.port",
               "type": "int64",
-              "value": 54078
+              "value": 55078
             },
             {
               "key": "network.protocol.version",
@@ -136,18 +97,18 @@
           "warnings": null
         },
         {
-          "traceID": "56f4caf3f2e58f8bad0db25b92580f53",
-          "spanID": "793d4b59eac59903",
+          "traceID": "c91862bd3c44458271d809567d518edd",
+          "spanID": "a0af42e1d26333af",
           "operationName": "tokenize",
           "references": [
             {
               "refType": "CHILD_OF",
-              "traceID": "56f4caf3f2e58f8bad0db25b92580f53",
-              "spanID": "69549e0e5025804a"
+              "traceID": "c91862bd3c44458271d809567d518edd",
+              "spanID": "b47191c4013e42b3"
             }
           ],
-          "startTime": 1794217197068684,
-          "duration": 1,
+          "startTime": 1794225084807165,
+          "duration": 2,
           "tags": [
             {
               "key": "otel.scope.name",
@@ -165,19 +126,58 @@
           "warnings": null
         },
         {
-          "traceID": "56f4caf3f2e58f8bad0db25b92580f53",
-          "spanID": "5e2a0d85e91f1eb8",
+          "traceID": "c91862bd3c44458271d809567d518edd",
+          "spanID": "a267a12886961fba",
           "operationName": "queue.wait",
           "references": [
             {
               "refType": "CHILD_OF",
-              "traceID": "56f4caf3f2e58f8bad0db25b92580f53",
-              "spanID": "69549e0e5025804a"
+              "traceID": "c91862bd3c44458271d809567d518edd",
+              "spanID": "b47191c4013e42b3"
             }
           ],
-          "startTime": 1794217197068688,
-          "duration": 1081,
+          "startTime": 1794225084807170,
+          "duration": 5117,
           "tags": [
+            {
+              "key": "otel.scope.name",
+              "type": "string",
+              "value": "inference-gateway"
+            },
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            }
+          ],
+          "logs": [],
+          "processID": "p1",
+          "warnings": null
+        },
+        {
+          "traceID": "c91862bd3c44458271d809567d518edd",
+          "spanID": "5c126dbe77b275a6",
+          "operationName": "batch.run",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "c91862bd3c44458271d809567d518edd",
+              "spanID": "b47191c4013e42b3"
+            }
+          ],
+          "startTime": 1794225084812288,
+          "duration": 135,
+          "tags": [
+            {
+              "key": "batch.size",
+              "type": "int64",
+              "value": 2
+            },
+            {
+              "key": "model.version",
+              "type": "string",
+              "value": "v1"
+            },
             {
               "key": "otel.scope.name",
               "type": "string",

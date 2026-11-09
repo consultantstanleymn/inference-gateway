@@ -1,0 +1,44 @@
+# Evidence: Diagnostics stack run: trace, load, scrape and dashboard queries
+label: VERIFIED LOCALLY
+date: 2026-11-09 11:50 UTC (the run; this file was written later)
+code commit: b67368640ae5eb803ebe4126927655988f329288
+working tree clean at run time: yes
+machine: MacBook Pro (mid 2015), 8 logical CPUs, 16 GB RAM, Fedora 44, podman 5.8.7 (measured on one laptop)
+command: flock heavy.lock nice -n 10 scripts/diag-run.sh
+notes: The stack of five containers ran on this laptop with podman. One trace has the four spans. All dashboard queries returned data except the error query, which had no errors to count. Grafana loaded the provisioned dashboard through its API. The screenshot is separate.
+---
+## Request trace (service inference-gateway), saved to evidence/jaeger-request-trace.json
+span name           parent span name
+POST /v1/classify  (root)
+tokenize           POST /v1/classify
+queue.wait         POST /v1/classify
+batch.run          POST /v1/classify
+
+## Load run (k6, 200 requests per second for 120 s, through the compose stack)
+K6SUMMARY {"rate_target":200,"requests":24000,"throughput_rps":200,"failed_rate":0,"shed_429":0,"v1":24000,"v2":0,"dropped_iterations":0,"avg_ms":4.42,"p50_ms":5.72,"p95_ms":6.69,"p99_ms":6.88,"max_ms":17.3}
+
+## Live scrape of /metrics (default text format)
+metrics series lines: 101
+of which gateway_ series: 57 and Go or process series: 44 (counted from the scrape); budget: under 200 per instance
+
+## Dashboard queries against Prometheus (each of the 12 expressions of the 8 panels)
+1 series | Latency p50, p95, p99 by transport | histogram_quantile(0.5, sum by (le, transport) (rate(gateway_request_duration_seconds_bucket[1m])))
+1 series | Latency p50, p95, p99 by transport | histogram_quantile(0.95, sum by (le, transport) (rate(gateway_request_duration_seconds_bucket[1m])))
+1 series | Latency p50, p95, p99 by transport | histogram_quantile(0.99, sum by (le, transport) (rate(gateway_request_duration_seconds_bucket[1m])))
+1 series | Latency p95 by model version | histogram_quantile(0.95, sum by (le, model_version) (rate(gateway_request_duration_seconds_bucket[1m])))
+1 series | Request rate by outcome | sum by (outcome) (rate(gateway_requests_total[1m]))
+1 series | Errors and sheds per second | rate(gateway_shed_total[1m])
+0 series | Errors and sheds per second | sum(rate(gateway_requests_total{outcome=~"error|timeout|closed"}[1m]))
+1 series | Queue depth | gateway_queue_depth
+1 series | Queue wait p95 | histogram_quantile(0.95, sum by (le) (rate(gateway_queue_wait_seconds_bucket[1m])))
+1 series | Batch size p50 and p95 | histogram_quantile(0.5, sum by (le) (rate(gateway_batch_size_bucket[1m])))
+1 series | Batch size p50 and p95 | histogram_quantile(0.95, sum by (le) (rate(gateway_batch_size_bucket[1m])))
+1 series | CPU cores used | rate(process_cpu_seconds_total[1m])
+{
+  "title": "Inference gateway: golden signals",
+  "uid": "inf-golden",
+  "panels": 8
+}
+
+Note: the expression for errors, timeouts and closed requests returned 0 series because the run had none. That is the expected result.
+Screenshot: not part of this file. A first screenshot of the dashboard was blank and was deleted. See the README status.

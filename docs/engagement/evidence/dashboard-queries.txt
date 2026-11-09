@@ -1,0 +1,17 @@
+1 series | Latency p50, p95, p99 by transport | histogram_quantile(0.5, sum by (le, transport) (rate(gateway_request_duration_seconds_bucket[1m])))
+1 series | Latency p50, p95, p99 by transport | histogram_quantile(0.95, sum by (le, transport) (rate(gateway_request_duration_seconds_bucket[1m])))
+1 series | Latency p50, p95, p99 by transport | histogram_quantile(0.99, sum by (le, transport) (rate(gateway_request_duration_seconds_bucket[1m])))
+1 series | Latency p95 by model version | histogram_quantile(0.95, sum by (le, model_version) (rate(gateway_request_duration_seconds_bucket[1m])))
+1 series | Request rate by outcome | sum by (outcome) (rate(gateway_requests_total[1m]))
+1 series | Errors and sheds per second | rate(gateway_shed_total[1m])
+0 series | Errors and sheds per second | sum(rate(gateway_requests_total{outcome=~"error|timeout|closed"}[1m]))
+1 series | Queue depth | gateway_queue_depth
+1 series | Queue wait p95 | histogram_quantile(0.95, sum by (le) (rate(gateway_queue_wait_seconds_bucket[1m])))
+1 series | Batch size p50 and p95 | histogram_quantile(0.5, sum by (le) (rate(gateway_batch_size_bucket[1m])))
+1 series | Batch size p50 and p95 | histogram_quantile(0.95, sum by (le) (rate(gateway_batch_size_bucket[1m])))
+1 series | CPU cores used | rate(process_cpu_seconds_total[1m])
+{
+  "title": "Inference gateway: golden signals",
+  "uid": "inf-golden",
+  "panels": 8
+}
