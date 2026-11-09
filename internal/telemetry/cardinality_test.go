@@ -25,7 +25,7 @@ import (
 // A histogram series counts one series per bucket, plus _sum and _count.
 var seriesBudget = map[string]int{
 	"gateway_requests_total":           14, // 2 transports x 7 outcomes
-	"gateway_request_duration_seconds": 28, // 2 transports x (11 buckets + Inf + sum + count)
+	"gateway_request_duration_seconds": 56, // 2 transports x 2 versions x (11 buckets + Inf + sum + count)
 	"gateway_queue_wait_seconds":       14,
 	"gateway_batch_size":               10,
 	"gateway_batch_run_seconds":        14,
@@ -38,7 +38,7 @@ var seriesBudget = map[string]int{
 // allowedLabels is the exact label name set for each family.
 var allowedLabels = map[string][]string{
 	"gateway_requests_total":           {"transport", "outcome"},
-	"gateway_request_duration_seconds": {"transport"},
+	"gateway_request_duration_seconds": {"transport", "model_version"},
 	"gateway_queue_wait_seconds":       {},
 	"gateway_batch_size":               {},
 	"gateway_batch_run_seconds":        {},
@@ -216,7 +216,7 @@ func checkValue(t *testing.T, family, label, value string) {
 		if !allowedOutcome[value] {
 			t.Errorf("family %q outcome value %q is outside the allowed set", family, value)
 		}
-	case "version":
+	case "version", "model_version":
 		if !allowedVersion[value] {
 			t.Errorf("family %q version value %q is outside the allowed set", family, value)
 		}

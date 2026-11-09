@@ -52,7 +52,10 @@ func (s *Service) Classify(ctx context.Context, text string) (Prediction, error)
 		ctx, cancel = context.WithTimeout(ctx, s.Timeout)
 		defer cancel()
 	}
-	res, err := s.Batcher.Submit(ctx, tokenize.Features(text))
+	_, tok := tracer.Start(ctx, "tokenize")
+	feats := tokenize.Features(text)
+	tok.End()
+	res, err := s.Batcher.Submit(ctx, feats)
 	if err != nil {
 		return Prediction{}, err
 	}

@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/collectors"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
 	"go.opentelemetry.io/otel/propagation"
@@ -19,7 +20,7 @@ import (
 type Metrics struct {
 	Registry   *prometheus.Registry
 	Requests   *prometheus.CounterVec   // transport, outcome
-	Latency    *prometheus.HistogramVec // transport
+	Latency    *prometheus.HistogramVec // transport, model_version
 	QueueWait  prometheus.Histogram
 	BatchSize  prometheus.Histogram
 	BatchRun   prometheus.Histogram
@@ -34,7 +35,7 @@ func NewMetrics(maxBatch int) *Metrics {
 	m := &Metrics{Registry: prometheus.NewRegistry()}
 	lat := []float64{.001, .002, .005, .01, .025, .05, .1, .25, .5, 1, 2.5}
 	m.Requests = prometheus.NewCounterVec(prometheus.CounterOpts{Name: "gateway_requests_total", Help: "Requests by transport and outcome."}, []string{"transport", "outcome"})
-	m.Latency = prometheus.NewHistogramVec(prometheus.HistogramOpts{Name: "gateway_request_duration_seconds", Help: "End to end request time.", Buckets: lat}, []string{"transport"})
+	m.Latency = prometheus.NewHistogramVec(prometheus.HistogramOpts{Name: "gateway_request_duration_seconds", Help: "End to end request time.", Buckets: lat}, []string{"transport", "model_version"})
 	m.QueueWait = prometheus.NewHistogram(prometheus.HistogramOpts{Name: "gateway_queue_wait_seconds", Help: "Time a request waited before its batch ran.", Buckets: lat})
 	sizes := []float64{1, 2, 4, 8, 16, 32, 64}
 	m.BatchSize = prometheus.NewHistogram(prometheus.HistogramOpts{Name: "gateway_batch_size", Help: "Requests per model call.", Buckets: sizes})
@@ -43,6 +44,8 @@ func NewMetrics(maxBatch int) *Metrics {
 	m.Dropped = prometheus.NewCounter(prometheus.CounterOpts{Name: "gateway_cancelled_total", Help: "Requests dropped before inference because the caller left."})
 	m.QueueDepth = prometheus.NewGauge(prometheus.GaugeOpts{Name: "gateway_queue_depth", Help: "Requests waiting now."})
 	m.ModelInfo = prometheus.NewGaugeVec(prometheus.GaugeOpts{Name: "gateway_model_info", Help: "Loaded model version."}, []string{"version"})
+	// Runtime metrics: process_cpu_seconds_total feeds the saturation panel.
+	m.Registry.MustRegister(collectors.NewGoCollector(), collectors.NewProcessCollector(collectors.ProcessCollectorOpts{}))
 	m.Registry.MustRegister(m.Requests, m.Latency, m.QueueWait, m.BatchSize, m.BatchRun, m.Shed, m.Dropped, m.QueueDepth, m.ModelInfo)
 	return m
 }

@@ -9,9 +9,11 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
+	"go.opentelemetry.io/otel/trace"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -48,7 +50,7 @@ func New(svc *Service, m *telemetry.Metrics) *Server {
 		}
 		w.WriteHeader(http.StatusServiceUnavailable)
 	})
-	mux.Handle("GET /metrics", promhttp.HandlerFor(m.Registry, promhttp.HandlerOpts{}))
+	mux.Handle("GET /metrics", promhttp.HandlerFor(m.Registry, promhttp.HandlerOpts{EnableOpenMetrics: true}))
 	// While not ready (warm-up or draining) ask clients to drop the connection after each answer.
 	// Without this a client can reuse an idle keep-alive connection at the moment the server
 	// closes it, and see an EOF. That showed up as 4 failed requests in one rolling upgrade run.
@@ -149,9 +151,18 @@ func grpcCode(err error) codes.Code {
 	return codes.Internal
 }
 
-func (s *Server) record(transport string, start time.Time, err error) {
+func (s *Server) record(ctx context.Context, transport string, start time.Time, err error) {
 	s.metrics.Requests.WithLabelValues(transport, outcome(err)).Inc()
-	s.metrics.Latency.WithLabelValues(transport).Observe(time.Since(start).Seconds())
+	obs := s.metrics.Latency.WithLabelValues(transport, s.svc.Version)
+	secs := time.Since(start).Seconds()
+	// A sampled request carries its trace id as an exemplar, so a slow bucket links to a trace.
+	if sc := trace.SpanContextFromContext(ctx); sc.IsSampled() {
+		if eo, ok := obs.(prometheus.ExemplarObserver); ok {
+			eo.ObserveWithExemplar(secs, prometheus.Labels{"trace_id": sc.TraceID().String()})
+			return
+		}
+	}
+	obs.Observe(secs)
 }
 
 func (s *Server) handleClassify(w http.ResponseWriter, r *http.Request) {
@@ -161,12 +172,12 @@ func (s *Server) handleClassify(w http.ResponseWriter, r *http.Request) {
 	}
 	r.Body = http.MaxBytesReader(w, r.Body, 64<<10)
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		s.record("http", start, ErrEmptyText)
+		s.record(r.Context(), "http", start, ErrEmptyText)
 		http.Error(w, `{"error":"invalid json"}`, http.StatusBadRequest)
 		return
 	}
 	pred, err := s.svc.Classify(r.Context(), req.Text)
-	s.record("http", start, err)
+	s.record(r.Context(), "http", start, err)
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json")
 		if outcome(err) == "shed" {
@@ -183,7 +194,7 @@ func (s *Server) handleClassify(w http.ResponseWriter, r *http.Request) {
 func (h *grpcHandler) Classify(ctx context.Context, in *inferencev1.ClassifyRequest) (*inferencev1.ClassifyResponse, error) {
 	start := time.Now()
 	pred, err := h.s.svc.Classify(ctx, in.GetText())
-	h.s.record("grpc", start, err)
+	h.s.record(ctx, "grpc", start, err)
 	if err != nil {
 		return nil, status.Error(grpcCode(err), err.Error())
 	}
